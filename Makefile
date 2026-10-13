@@ -17,9 +17,9 @@ TEST_OBJ_DIR	:= build/obj/test
 BIN_DIR 		:= build/bin
 
 # Executable paths
-TARGET       	:= $(BIN_DIR)/minerpirates
-TEST_TARGET  	:= $(BIN_DIR)/test_runner
-DEBUG_TARGET 	:= build/debug/minerpirates
+TARGET       	:= $(BIN_DIR)/MinerPirates
+TEST_TARGET  	:= $(BIN_DIR)/test/testrunner
+DEBUG_TARGET 	:= $(BIN_DIR)/debug/MinerPirates
 
 # Find all C++ source files in the application and test directories
 SRCS 			:= $(wildcard $(SRC_DIR)/*.cpp)
@@ -48,6 +48,9 @@ RAYLIB_DIR 		:= external/raylib
 RAYLIB_SRC 		:= $(RAYLIB_DIR)/src
 RAYLIB_LIB 		:= $(RAYLIB_SRC)/libraylib.a
 RAYLIB_CFLAGS 	:= -I$(RAYLIB_SRC)
+
+# oneTBB parallel programming library
+TBB_LIBS := -ltbb
 
 # System libraries required by the raylib Wayland desktop build
 RAYLIB_LIBS 	:= -lGL -lm -lpthread -ldl -lrt \
@@ -126,7 +129,7 @@ run-debug: $(DEBUG_TARGET)
 $(TARGET): $(OBJS) $(RAYLIB_LIB)
 	@echo "Linking..."
 	@mkdir -p $(dir $@)
-	$(CXX) $^ $(RAYLIB_LIB) $(RAYLIB_LIBS) -o $@
+	$(CXX) $^ $(RAYLIB_LIB) $(RAYLIB_LIBS) $(TBB_LIBS) -o $@
 
 # Compile an application source file into a normal-build object file
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
@@ -139,7 +142,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(TEST_TARGET): $(APP_OBJS) $(TEST_OBJS) | raylib
 	@echo "Linking Tests..."
 	@mkdir -p $(dir $@)
-	$(CXX) $^ $(RAYLIB_LIB) $(RAYLIB_LIBS) $(LD_LIBS) -o $@
+	$(CXX) $^ $(RAYLIB_LIB) $(RAYLIB_LIBS) $(TBB_LIBS) $(LD_LIBS) -o $@
 
 # Compile a test source file into a test object file
 $(TEST_OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp
@@ -161,7 +164,7 @@ $(DEBUG_TARGET): $(DEBUG_OBJS) $(RAYLIB_LIB)
 	@echo "Linking Debug Build..."
 	@mkdir -p $(dir $@)
 	@echo "Linking debug application..."
-	$(CXX) $(DEBUG_OBJS) $(RAYLIB_LIB) $(RAYLIB_LIBS) -o $@
+	$(CXX) $(DEBUG_OBJS) $(RAYLIB_LIB) $(TBB_LIBS) -o $@
 
 
 # Remove generated build artifacts and executables

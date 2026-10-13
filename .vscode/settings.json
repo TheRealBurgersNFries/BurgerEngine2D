@@ -1,0 +1,4 @@
+{
+  "cpputestTestAdapter.testExecutable": "${workspaceFolder}/build/bin/test/testrunner;",
+  "cpputestTestAdapter.testExecutablePath": "${workspaceFolder}/test"
+}
