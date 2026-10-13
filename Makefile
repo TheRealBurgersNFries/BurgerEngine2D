@@ -17,9 +17,9 @@ TEST_OBJ_DIR	:= build/obj/test
 BIN_DIR 		:= build/bin
 
 # Executable paths
-TARGET       	:= $(BIN_DIR)/MinerPirates
+TARGET       	:= $(BIN_DIR)/BurgerEngine2D
 TEST_TARGET  	:= $(BIN_DIR)/test/testrunner
-DEBUG_TARGET 	:= $(BIN_DIR)/debug/MinerPirates
+DEBUG_TARGET 	:= $(BIN_DIR)/debug/BurgerEngine2D
 
 # Find all C++ source files in the application and test directories
 SRCS 			:= $(wildcard $(SRC_DIR)/*.cpp)
