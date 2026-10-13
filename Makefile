@@ -13,13 +13,13 @@ DEBUG_OBJ_DIR 	:= build/debug/obj
 TEST_DIR		:= test
 TEST_OBJ_DIR	:= build/obj/test
 
-# Output executable names
-TARGET			:= minerpirates
-TEST_TARGET		:= test_runner
+# Output directories
+BIN_DIR 		:= build/bin
 
-# Output path for the debug executable
+# Executable paths
+TARGET       	:= $(BIN_DIR)/minerpirates
+TEST_TARGET  	:= $(BIN_DIR)/test_runner
 DEBUG_TARGET 	:= build/debug/minerpirates
-
 
 # Find all C++ source files in the application and test directories
 SRCS 			:= $(wildcard $(SRC_DIR)/*.cpp)
@@ -50,8 +50,8 @@ RAYLIB_LIB 		:= $(RAYLIB_SRC)/libraylib.a
 RAYLIB_CFLAGS 	:= -I$(RAYLIB_SRC)
 
 # System libraries required by the raylib Wayland desktop build
-RAYLIB_LIBS 	:= -lGL -lm -lpthread -ldl -lrt 
-					-lwayland-client -lwayland-cursor 
+RAYLIB_LIBS 	:= -lGL -lm -lpthread -ldl -lrt \
+					-lwayland-client -lwayland-cursor \
 					-lwayland-egl -lxkbcommon
 
 
@@ -77,7 +77,7 @@ LD_LIBS 		:= -L$(CPPUTEST_HOME)/lib -lCppUTest
 # -g3 includes detailed debugging information
 # -O0 disables optimizations to make stepping through code easier
 # -DDEBUG defines the DEBUG preprocessor macro
-DEBUG_FLAGS 	:= -std=c++23 -Wall -Wextra -Werror -pedantic  
+DEBUG_FLAGS 	:= -std=c++23 -Wall -Wextra -Werror -pedantic  \
 					-g3 -O0 -DDEBUG -MP -MMD $(RAYLIB_CFLAGS)
 
 
@@ -87,24 +87,29 @@ DEBUG_FLAGS 	:= -std=c++23 -Wall -Wextra -Werror -pedantic
 
 
 # Declare user-facing targets that don't represent files
-.PHONY: all test clean raylib debug run-debug
+.PHONY: all run test clean raylib debug run-debug
 
 
 # Default application build
-all: $(TARGET) raylib
+all: $(TARGET) 
+
+# Run the game after building
+run: $(TARGET)
+	./$(TARGET)
+
 
 # Build the test executable and run the tests
-test: $(TEST_TARGET) raylib
+test: $(TEST_TARGET) $(RAYLIB_LIB)
 	@echo "Running Tests:"
 	./$(TEST_TARGET)
 
 
 # Build raylib from its source directory using its Makefile.
 # Select the desktop platform, enable Wayland, and disable X11.
-raylib:
-	$(MAKE) -C $(RAYLIB_SRC) 
-	    PLATFORM=PLATFORM_DESKTOP 
-	    GLFW_LINUX_ENABLE_WAYLAND=TRUE 
+$(RAYLIB_LIB):
+	$(MAKE) -C $(RAYLIB_SRC) \
+	    PLATFORM=PLATFORM_DESKTOP \
+	    GLFW_LINUX_ENABLE_WAYLAND=TRUE \
 	    GLFW_LINUX_ENABLE_X11=FALSE
 
 
@@ -118,16 +123,10 @@ run-debug: $(DEBUG_TARGET)
 
 # Link the test executable from application objects (excluding main.o)
 # and test objects, then link against CppUTest.
-$(TEST_TARGET): $(APP_OBJS) $(TEST_OBJS)
-	@echo "Linking Tests..."
-	$(CXX) $^ $(LD_LIBS) -o $@
-
-
-# Link the normal application executable from its object files and raylib
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJS) $(RAYLIB_LIB)
 	@echo "Linking..."
-	$(CXX) $(CXXFLAGS) $^ $(RAYLIB_LIB) -o $@
-	
+	@mkdir -p $(dir $@)
+	$(CXX) $^ $(RAYLIB_LIB) $(RAYLIB_LIBS) -o $@
 
 # Compile an application source file into a normal-build object file
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
@@ -135,6 +134,12 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+# Link the test runner from application objects (excluding main.o)
+# and test objects, then link against Raylib and CppUTest.
+$(TEST_TARGET): $(APP_OBJS) $(TEST_OBJS) | raylib
+	@echo "Linking Tests..."
+	@mkdir -p $(dir $@)
+	$(CXX) $^ $(RAYLIB_LIB) $(RAYLIB_LIBS) $(LD_LIBS) -o $@
 
 # Compile a test source file into a test object file
 $(TEST_OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp
@@ -152,7 +157,7 @@ $(DEBUG_OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 # Link the debug executable from debug objects and raylib.
 # Create the output directory if it doesn't exist.
-$(DEBUG_TARGET): $(DEBUG_OBJS) | raylib
+$(DEBUG_TARGET): $(DEBUG_OBJS) $(RAYLIB_LIB)
 	@echo "Linking Debug Build..."
 	@mkdir -p $(dir $@)
 	@echo "Linking debug application..."
@@ -162,4 +167,4 @@ $(DEBUG_TARGET): $(DEBUG_OBJS) | raylib
 # Remove generated build artifacts and executables
 clean:
 	@echo "Cleaning..."
-	rm -rf build $(TARGET) $(TEST_TARGET)
+	rm -rf build 
