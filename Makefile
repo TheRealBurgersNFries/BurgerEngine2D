@@ -6,6 +6,9 @@ CXX 			:=  g++
 SRC_DIR 		:= src
 OBJ_DIR 		:= build/obj
 
+# Include directory
+INC_DIR			:= inc
+
 # Separate object directory for the debug build
 DEBUG_OBJ_DIR 	:= build/debug/obj
 
@@ -62,6 +65,9 @@ RAYLIB_LIBS 	:= -lGL -lm -lpthread -ldl -lrt \
 # C++23, common warnings, warnings as errors, strict conformance,
 # dependency-file generation, and suppression of separate .o/.d targets
 CXXFLAGS    	:= -std=c++23 -Wall -Wextra -Werror -pedantic -MP -MMD
+
+# Add header directory for BurgerEngine2D
+CXXFLAGS		+= -I$(INC_DIR)
 
 # Add raylib's header directory to the compiler's include search path
 CXXFLAGS 		+= $(RAYLIB_CFLAGS)
