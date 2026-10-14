@@ -17,10 +17,13 @@ namespace BurgerEngine2D {
             bool _inStack = false;
             DrawStack2D* _stack;
         protected:
-
+            I_Drawable() = default;
         public:
             virtual ~I_Drawable() = default;
             virtual void Draw() const = 0;
+            int getZDepth();
+            void setZDepth(int val);
+            bool InStack();
 
     };
 
