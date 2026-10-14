@@ -15,8 +15,17 @@ namespace BurgerEngine2D {
     class DrawStack2D final {
         private:
             std::vector<I_Drawable*> _drawList;
+            std::vector<I_Drawable*> _addList;
+            std::vector<I_Drawable*> _subList;
+
+            void sortSubs();
+            void sortDraws();
         public:
             void Draw();
+            void AddToStack(I_Drawable *drawable);
+            void removeFromStack(I_Drawable *drawable);
+
+            DrawStack2D();
     };
 
 }
