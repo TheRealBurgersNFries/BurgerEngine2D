@@ -16,7 +16,7 @@ WRAP_DIR        := inc/wrappers
 TEST_DIR            := test
 TEST_OBJ_DIR        := build/obj/test
 DEBUG_TEST_OBJ_DIR  := build/debug/obj/test
-MOCK_DIR            := test/wrappers
+MOCK_DIR            := test/mocks
 
 # Output directories
 BIN_DIR         := build/bin
