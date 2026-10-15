@@ -2,10 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Miner Pirates (Debug)",
+            "name": "Debug CppUTest",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/minerpirates",
+            "program": "${workspaceFolder}/build/bin/debug/testrunner",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -13,7 +13,14 @@
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "/usr/bin/gdb",
-            "preLaunchTask": "Build Debug"
+            "preLaunchTask": "Build CppUTest Debug Runner",
+            "setupCommands": [
+                {
+                    "description": "Enable GDB pretty-printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }

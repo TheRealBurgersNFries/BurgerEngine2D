@@ -1,179 +1,158 @@
-# C++ compiler
-CXX 			:=  g++
 
+# C++ compiler
+CXX             := g++
 
 # Source and build directories
-SRC_DIR 		:= src
-OBJ_DIR 		:= build/obj
+SRC_DIR         := src
+WRAP_SRC_DIR    := src/wrappers
+OBJ_DIR         := build/obj
+DEBUG_OBJ_DIR   := build/debug/obj
 
 # Include directory
-INC_DIR			:= inc
+INC_DIR         := inc
+WRAP_DIR        := inc/wrappers
 
-# Separate object directory for the debug build
-DEBUG_OBJ_DIR 	:= build/debug/obj
-
-# Test source and object directories
-TEST_DIR		:= test
-TEST_OBJ_DIR	:= build/obj/test
+# Test directories
+TEST_DIR            := test
+TEST_OBJ_DIR        := build/obj/test
+DEBUG_TEST_OBJ_DIR  := build/debug/obj/test
+MOCK_DIR            := test/wrappers
 
 # Output directories
-BIN_DIR 		:= build/bin
+BIN_DIR         := build/bin
+LIB_DIR         := build/lib
 
-# Executable paths
-TARGET       	:= $(BIN_DIR)/BurgerEngine2D
-TEST_TARGET  	:= $(BIN_DIR)/test/testrunner
-DEBUG_TARGET 	:= $(BIN_DIR)/debug/BurgerEngine2D
+# Output targets
+TARGET              := $(LIB_DIR)/libBurgerEngine2D.so
+TEST_TARGET         := $(BIN_DIR)/test/testrunner
+DEBUG_TARGET        := $(LIB_DIR)/debug/libBurgerEngine2D.so
+DEBUG_TEST_TARGET   := $(BIN_DIR)/debug/testrunner
 
-# Find all C++ source files in the application and test directories
-SRCS 			:= $(wildcard $(SRC_DIR)/*.cpp)
-TEST_SRCS		:= $(wildcard $(TEST_DIR)/*.cpp)
+# Source files
+SRCS            := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(WRAP_SRC_DIR)/*.cpp)
+TEST_SRCS       := $(wildcard $(TEST_DIR)/*.cpp) $(wildcard $(MOCK_DIR)/*.cpp)
 
-# Convert source file paths into their corresponding object file paths
-OBJS 			:= $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
-TEST_OBJS		:= $(TEST_SRCS:$(TEST_DIR)/%.cpp=$(TEST_OBJ_DIR)/%.o)
+# Object files
+OBJS            := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+TEST_OBJS       := $(patsubst $(TEST_DIR)/%.cpp,$(TEST_OBJ_DIR)/%.o,$(TEST_SRCS))
 
-# Exclude the application's main() entry point from the test executable
-APP_OBJS 		:= $(filter-out $(OBJ_DIR)/main.o,$(OBJS))
+# Wrapper object files
+WRAP_OBJS       := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(wildcard $(WRAP_SRC_DIR)/*.cpp))
 
-# Generate object file paths for the debug build
-DEBUG_OBJS 		:= $(SRCS:$(SRC_DIR)/%.cpp=$(DEBUG_OBJ_DIR)/%.o)
+# Library object files
+LIB_OBJS        := $(filter-out $(OBJ_DIR)/main.o,$(OBJS))
 
-# Debug-build objects excluding the application's main() entry point
-DEBUG_APP_OBJS 	:= $(filter-out $(DEBUG_OBJ_DIR)/main.o,$(DEBUG_OBJS))
+# Test application object files
+TEST_APP_OBJS   := $(filter-out $(OBJ_DIR)/main.o $(WRAP_OBJS),$(OBJS))
 
+# Debug object files
+DEBUG_OBJS      := $(patsubst $(SRC_DIR)/%.cpp,$(DEBUG_OBJ_DIR)/%.o,$(SRCS))
+DEBUG_TEST_OBJS := $(patsubst $(TEST_DIR)/%.cpp,$(DEBUG_TEST_OBJ_DIR)/%.o,$(TEST_SRCS))
 
-# Path to the CppUTest dependency
-CPPUTEST_HOME 	:= external/cpputest
+# Debug wrapper object files
+DEBUG_WRAP_OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(DEBUG_OBJ_DIR)/%.o,$(wildcard $(WRAP_SRC_DIR)/*.cpp))
 
+# Debug library object files
+DEBUG_LIB_OBJS  := $(filter-out $(DEBUG_OBJ_DIR)/main.o,$(DEBUG_OBJS))
 
-# Raylib source directory, static library, and compiler include path
-RAYLIB_DIR 		:= external/raylib
-RAYLIB_SRC 		:= $(RAYLIB_DIR)/src
-RAYLIB_LIB 		:= $(RAYLIB_SRC)/libraylib.a
-RAYLIB_CFLAGS 	:= -I$(RAYLIB_SRC)
+# Debug test application object files
+DEBUG_TEST_APP_OBJS := $(filter-out $(DEBUG_OBJ_DIR)/main.o $(DEBUG_WRAP_OBJS),$(DEBUG_OBJS))
 
-# oneTBB parallel programming library
-TBB_LIBS := -ltbb
+# External libraries
+CPPUTEST_HOME   := external/cpputest
+RAYLIB_DIR      := external/raylib
+RAYLIB_SRC      := $(RAYLIB_DIR)/src
+RAYLIB_LIB      := $(RAYLIB_SRC)/libraylib.a
 
-# System libraries required by the raylib Wayland desktop build
-RAYLIB_LIBS 	:= -lGL -lm -lpthread -ldl -lrt \
-					-lwayland-client -lwayland-cursor \
-					-lwayland-egl -lxkbcommon
+RAYLIB_CFLAGS   := -I$(RAYLIB_SRC)
+RAYLIB_LIBS     := -lGL -lm -lpthread -ldl -lrt -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon
+TBB_LIBS        := -ltbb
+LD_LIBS         := -L$(CPPUTEST_HOME)/lib -lCppUTest -lCppUTestExt
 
+# Compiler flags
+CXXFLAGS        := -std=c++23 -Wall -Wextra -Werror -pedantic -MP -MMD -fPIC
+CXXFLAGS        += -I$(INC_DIR) -I$(WRAP_DIR) $(RAYLIB_CFLAGS)
 
-# Standard compiler flags:
-# C++23, common warnings, warnings as errors, strict conformance,
-# dependency-file generation, and suppression of separate .o/.d targets
-CXXFLAGS    	:= -std=c++23 -Wall -Wextra -Werror -pedantic -MP -MMD
+CXXTESTFLAGS    := $(CXXFLAGS) -I$(CPPUTEST_HOME)/include
 
-# Add header directory for BurgerEngine2D
-CXXFLAGS		+= -I$(INC_DIR)
+# Debug flags
+DEBUG_FLAGS     := -std=c++23 -Wall -Wextra -Werror -pedantic -g3 -O0 -DDEBUG -MP -MMD -fPIC
+DEBUG_FLAGS     += -I$(INC_DIR) -I$(WRAP_DIR) $(RAYLIB_CFLAGS)
 
-# Add raylib's header directory to the compiler's include search path
-CXXFLAGS 		+= $(RAYLIB_CFLAGS)
+DEBUG_TEST_FLAGS := $(DEBUG_FLAGS) -I$(CPPUTEST_HOME)/include
 
-# Force-include CppUTest's memory leak detector macros in each translation unit
-CXXFLAGS		+= -include $(CPPUTEST_HOME)/include/CppUTest/MemoryLeakDetectorNewMacros.h
+# Dependency files
+DEPS            := $(OBJS:.o=.d) $(TEST_OBJS:.o=.d) \
+                   $(DEBUG_OBJS:.o=.d) $(DEBUG_TEST_OBJS:.o=.d)
 
-# Compiler flags for test sources, including CppUTest's headers
-CXXTESTFLAGS 	:= $(CXXFLAGS) -I$(CPPUTEST_HOME)/include
+# Default target
+.PHONY: all test debug clean run-debug raylib
 
-# CppUTest library search path and linker flag
-LD_LIBS 		:= -L$(CPPUTEST_HOME)/lib -lCppUTest
+all: $(TARGET) $(TEST_TARGET)
 
+# Build raylib
+raylib: $(RAYLIB_LIB)
 
-# Debug compiler flags:
-# -g3 includes detailed debugging information
-# -O0 disables optimizations to make stepping through code easier
-# -DDEBUG defines the DEBUG preprocessor macro
-DEBUG_FLAGS 	:= -std=c++23 -Wall -Wextra -Werror -pedantic  \
-					-g3 -O0 -DDEBUG -MP -MMD $(RAYLIB_CFLAGS)
-
-
-# Include generated dependency files so header changes trigger recompilation.
-# The leading '-' tells Make to tolerate dependency files that don't exist yet.
--include $(OBJS:.o=.d) $(TEST_OBJS:.o=.d) $(DEBUG_OBJS:.o=.d)
-
-
-# Declare user-facing targets that don't represent files
-.PHONY: all run test clean raylib debug run-debug
-
-
-# Default application build
-all: $(TARGET) 
-
-# Run the game after building
-run: $(TARGET)
-	./$(TARGET)
-
-
-# Build the test executable and run the tests
-test: $(TEST_TARGET) $(RAYLIB_LIB)
-	@echo "Running Tests:"
-	./$(TEST_TARGET)
-
-
-# Build raylib from its source directory using its Makefile.
-# Select the desktop platform, enable Wayland, and disable X11.
 $(RAYLIB_LIB):
-	$(MAKE) -C $(RAYLIB_SRC) \
-	    PLATFORM=PLATFORM_DESKTOP \
-	    GLFW_LINUX_ENABLE_WAYLAND=TRUE \
-	    GLFW_LINUX_ENABLE_X11=FALSE
+	$(MAKE) -C $(RAYLIB_SRC) clean
+	$(MAKE) -C $(RAYLIB_SRC) PLATFORM=PLATFORM_DESKTOP \
+	    GLFW_LINUX_ENABLE_WAYLAND=TRUE GLFW_LINUX_ENABLE_X11=FALSE
 
-
-# Build the debug executable
-debug: $(DEBUG_TARGET)
-
-# Build the debug executable and immediately launch it under GDB
-run-debug: $(DEBUG_TARGET)
-	gdb -ex run --args ./$(DEBUG_TARGET)
-
-
-# Link the test executable from application objects (excluding main.o)
-# and test objects, then link against CppUTest.
-$(TARGET): $(OBJS) $(RAYLIB_LIB)
-	@echo "Linking..."
+# Build shared library
+$(TARGET): $(LIB_OBJS)
 	@mkdir -p $(dir $@)
-	$(CXX) $^ $(RAYLIB_LIB) $(RAYLIB_LIBS) $(TBB_LIBS) -o $@
+	$(CXX) -shared -o $@ $(LIB_OBJS) $(TBB_LIBS)
 
-# Compile an application source file into a normal-build object file
+# Build test runner
+$(TEST_TARGET): $(TEST_APP_OBJS) $(TEST_OBJS) $(RAYLIB_LIB)
+	@mkdir -p $(dir $@)
+	$(CXX) $^ $(RAYLIB_LIBS) $(TBB_LIBS) $(LD_LIBS) -o $@
+
+# Build debug shared library
+$(DEBUG_TARGET): $(DEBUG_LIB_OBJS)
+	@mkdir -p $(dir $@)
+	$(CXX) -shared -o $@ $(DEBUG_LIB_OBJS) $(TBB_LIBS)
+
+# Build debug test runner
+$(DEBUG_TEST_TARGET): $(DEBUG_TEST_APP_OBJS) $(DEBUG_TEST_OBJS) $(RAYLIB_LIB)
+	@mkdir -p $(dir $@)
+	$(CXX) $(DEBUG_TEST_APP_OBJS) $(DEBUG_TEST_OBJS) \
+	    $(RAYLIB_LIB) $(RAYLIB_LIBS) $(TBB_LIBS) $(LD_LIBS) -o $@
+
+# Compile application objects
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "Compiling..."
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Link the test runner from application objects (excluding main.o)
-# and test objects, then link against Raylib and CppUTest.
-$(TEST_TARGET): $(APP_OBJS) $(TEST_OBJS) | raylib
-	@echo "Linking Tests..."
-	@mkdir -p $(dir $@)
-	$(CXX) $^ $(RAYLIB_LIB) $(RAYLIB_LIBS) $(TBB_LIBS) $(LD_LIBS) -o $@
-
-# Compile a test source file into a test object file
+# Compile test objects
 $(TEST_OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp
-	@echo "Compiling Tests..."
-	@mkdir -p $(TEST_OBJ_DIR)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXTESTFLAGS) -c $< -o $@
 
-
-# Compile an application source file with debug flags into the debug object directory
+# Compile debug application objects
 $(DEBUG_OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "Compiling Debug build..."
 	@mkdir -p $(dir $@)
 	$(CXX) $(DEBUG_FLAGS) -c $< -o $@
 
-
-# Link the debug executable from debug objects and raylib.
-# Create the output directory if it doesn't exist.
-$(DEBUG_TARGET): $(DEBUG_OBJS) $(RAYLIB_LIB)
-	@echo "Linking Debug Build..."
+# Compile debug test objects
+$(DEBUG_TEST_OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	@echo "Linking debug application..."
-	$(CXX) $(DEBUG_OBJS) $(RAYLIB_LIB) $(TBB_LIBS) -o $@
+	$(CXX) $(DEBUG_TEST_FLAGS) -c $< -o $@
 
+# Run tests
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
 
-# Remove generated build artifacts and executables
+# Build debug targets
+debug: $(DEBUG_TARGET) $(DEBUG_TEST_TARGET)
+
+# Run debug tests
+run-debug: $(DEBUG_TEST_TARGET)
+	./$(DEBUG_TEST_TARGET)
+
+# Clean build files
 clean:
-	@echo "Cleaning..."
-	rm -rf build 
+	rm -rf build
+
+# Include generated dependencies
+-include $(DEPS)
