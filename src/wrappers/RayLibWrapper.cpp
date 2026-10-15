@@ -22,7 +22,7 @@ namespace BurgerEngine2D {
         SetTargetFPS(target);
     }
 
-    bool windowShouldCLose() {
+    bool windowShouldClose() {
         return WindowShouldClose();
     }
 }
