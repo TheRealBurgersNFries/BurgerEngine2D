@@ -20,10 +20,21 @@ namespace BurgerEngine2D {
 
             void sortSubs();
             void sortDraws();
+
+            void removeSubs();
+            void addNew();
+
+            int _maxZ;
+
+            int _maxAddedZ;
         public:
             void Draw();
             void AddToStack(I_Drawable *drawable);
             void removeFromStack(I_Drawable *drawable);
+            int getDrawCount();
+            int getMaxZDepth();
+
+            
 
             DrawStack2D();
     };
