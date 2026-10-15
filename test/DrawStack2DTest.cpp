@@ -51,7 +51,7 @@ TEST_GROUP(DrawStackTestGroup) {
     }
 };
 
-TEST(DrawStackTestGroup, Instantiate) {
+TEST(DrawStackTestGroup, instantiate) {
     bool actual = testStack.has_value();
     CHECK_TRUE(actual);
 }
@@ -123,7 +123,7 @@ TEST(DrawStackTestGroup, removeFromGroup) {
     mock().expectOneCall("beginDrawing");
     mock().expectOneCall("endDrawing");
     testStack->Draw();
-    
+
     testStack->removeFromStack(&*drawObject1);
 
     mock().expectOneCall("beginDrawing");
@@ -135,7 +135,7 @@ TEST(DrawStackTestGroup, removeFromGroup) {
     CHECK_FALSE(drawObject1->InStack());
 }
 
-TEST(DrawStackTestGroup, DrawCallsRaylibFunctions) {
+TEST(DrawStackTestGroup, drawCallsRaylibFunctions) {
     mock().expectOneCall("beginDrawing");
     mock().expectOneCall("endDrawing");
 
