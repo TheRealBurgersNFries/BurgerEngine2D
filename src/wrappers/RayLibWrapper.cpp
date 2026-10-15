@@ -23,6 +23,6 @@ namespace BurgerEngine2D {
     }
 
     bool windowShouldCLose() {
-        WindowShouldClose();
+        return WindowShouldClose();
     }
 }
