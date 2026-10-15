@@ -35,7 +35,7 @@ TEST_GROUP(I_DrawableTestGroup) {
 
 };
 
-TEST(I_DrawableTestGroup, Interface) {   
+TEST(I_DrawableTestGroup, interface) {   
     CHECK_TRUE(testObject);
 }
 
