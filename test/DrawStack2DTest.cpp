@@ -35,7 +35,7 @@ TEST_GROUP(DrawStackTestGroup) {
       
 
     void setup() {
-        testStack = BurgerEngine2D::DrawStack2D();
+        testStack.emplace();
     }
 
     void teardown() {

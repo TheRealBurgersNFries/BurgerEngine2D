@@ -34,9 +34,11 @@ namespace BurgerEngine2D {
             int getDrawCount();
             int getMaxZDepth();
 
-            
-
             DrawStack2D();
+
+            DrawStack2D(const DrawStack2D&) = delete;
+            DrawStack2D& operator = (const DrawStack2D&) = delete;
+
     };
 
 }

@@ -26,7 +26,7 @@ TEST_GROUP(I_DrawableTestGroup) {
 
     void setup() {
         testObject = drawTest();
-        testStack = BurgerEngine2D::DrawStack2D();
+        testStack.emplace();
     }
 
     void teardown() {

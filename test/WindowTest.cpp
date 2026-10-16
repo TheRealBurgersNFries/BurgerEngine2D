@@ -30,7 +30,7 @@ TEST_GROUP(WindowTestGroup) {
     int height = 600; 
     std::string title = "test";
     void setup() {
-        stack = BurgerEngine2D::DrawStack2D();
+        stack.emplace();
         running = true;
         inputsAvail = false;
         inputs = std::vector<int>();
@@ -52,9 +52,10 @@ TEST_GROUP(WindowTestGroup) {
 };
 
 TEST(WindowTestGroup, Initialize) {
+    mock().expectOneCall("initWindow");
     mock().ignoreOtherCalls();
 
     init();
     running = false;
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
