@@ -23,7 +23,7 @@ namespace BurgerEngine2D {
 
             void renderTask();
 
-            void getInputs();
+            bool getInputs();
 
         public:
             Window(std::atomic<bool>* running, int width, int height,

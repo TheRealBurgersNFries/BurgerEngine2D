@@ -36,7 +36,7 @@ namespace BurgerEngine2D {
             auto startTime = std::chrono::steady_clock::now();
             if (!windowShouldClose()) {
                 _stack->Draw();
-                // getInputs();
+                //inputsAvailable = getInputs();
             } else {
                 *_running = false;
             }
