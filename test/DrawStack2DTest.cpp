@@ -35,6 +35,7 @@ TEST_GROUP(DrawStackTestGroup) {
       
 
     void setup() {
+        MemoryLeakWarningPlugin::saveAndDisableNewDeleteOverloads();
         testStack.emplace();
     }
 
@@ -48,6 +49,7 @@ TEST_GROUP(DrawStackTestGroup) {
         drawObject2.reset();
         drawObject3.reset();
         drawObject4.reset();
+        MemoryLeakWarningPlugin::restoreNewDeleteOverloads();
     }
 };
 
