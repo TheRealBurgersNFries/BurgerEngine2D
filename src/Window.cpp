@@ -42,8 +42,10 @@ namespace BurgerEngine2D {
             }
             auto endTime = std::chrono::steady_clock::now();
             auto elapsed = (endTime - startTime);
-            //int threadTime = (std::chrono::duration_cast<std::chrono::microseconds>(elapsed)).count();
-
+            #ifdef LOG_LEVEL_INFO
+                int threadTime = (std::chrono::duration_cast<std::chrono::microseconds>(elapsed)).count();
+                std::cout << _threadName + " Runtime:" + std::to_string(_threadTime) + "us" << std::endl;
+            #endif
             if (elapsed < interval) {
                 std::this_thread::sleep_for(interval - elapsed);
             }
