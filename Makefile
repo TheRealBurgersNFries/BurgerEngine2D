@@ -71,7 +71,7 @@ LD_LIBS         := -L$(CPPUTEST_HOME)/lib -lCppUTest -lCppUTestExt
 
 # Compiler flags
 CXXFLAGS        := -std=c++23 -Wall -Wextra -Werror -pedantic -MP -MMD -fPIC
-CXXFLAGS        += -I$(INC_DIR) -I$(WRAP_DIR) $(RAYLIB_CFLAGS)
+CXXFLAGS        += -I$(INC_DIR) -I$(MOCK_DIR) -I$(WRAP_DIR) $(RAYLIB_CFLAGS)
 
 CXXTESTFLAGS    := $(CXXFLAGS) -I$(CPPUTEST_HOME)/include
 
