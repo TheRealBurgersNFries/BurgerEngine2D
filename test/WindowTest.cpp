@@ -3,6 +3,9 @@
 #include "I_Drawable.hpp"
 #include "DrawStack2D.hpp"
 
+#include "RayLibWrapper.hpp"
+#include "RayLibMock.hpp"
+
 #include <optional>
 
 #include <atomic>
@@ -29,16 +32,18 @@ TEST_GROUP(WindowTestGroup) {
     int width = 800;
     int height = 600; 
     std::string title = "test";
+    
+    
     void setup() {
         stack.emplace();
         running = true;
         inputsAvail = false;
         inputs = std::vector<int>();
-
     }
 
     void teardown() {
         running = false;
+        BurgerEngine2D::resetMockCalls();
     }
 
     void init() {
@@ -51,11 +56,13 @@ TEST_GROUP(WindowTestGroup) {
     }
 };
 
-TEST(WindowTestGroup, Initialize) {
-    mock().expectOneCall("initWindow");
+TEST(WindowTestGroup, initializeAndExit) {
     mock().ignoreOtherCalls();
 
     init();
     running = false;
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    CHECK_EQUAL(1, BurgerEngine2D::getInitWindowCalls());
+    CHECK_EQUAL(1, BurgerEngine2D::getCloseWindowCalls());
+
 }
