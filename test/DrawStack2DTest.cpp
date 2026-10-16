@@ -59,7 +59,7 @@ TEST(DrawStackTestGroup, instantiate) {
 }
 
 TEST(DrawStackTestGroup, addToStack) {
-    drawObject1 = drawTest();
+    drawObject1.emplace();
     testStack->AddToStack(&*drawObject1);
     bool actual1 = drawObject1->InStack();
     bool actual2 = false;
@@ -72,17 +72,17 @@ TEST(DrawStackTestGroup, addToStack) {
 
 TEST(DrawStackTestGroup, keepZDepth) {
     int expected = 12;
-    drawObject1 = drawTest(expected);
+    drawObject1.emplace(expected);
     testStack->AddToStack(&*drawObject1);
     int actual =  drawObject1->getZDepth();
     CHECK_EQUAL(expected, actual);
 }
 
 TEST(DrawStackTestGroup, autoZDepth) {
-    drawObject1 = drawTest();
-    drawObject2 = drawTest();
-    drawObject3 = drawTest();
-    drawObject4 = drawTest();
+    drawObject1.emplace();
+    drawObject2.emplace();
+    drawObject3.emplace();
+    drawObject4.emplace();
 
     testStack->AddToStack(&*drawObject1);
     testStack->AddToStack(&*drawObject2);
@@ -96,10 +96,10 @@ TEST(DrawStackTestGroup, autoZDepth) {
 }
 
 TEST(DrawStackTestGroup, partialAutoZDepth) {
-    drawObject1 = drawTest(1);
-    drawObject2 = drawTest(3);
-    drawObject3 = drawTest(5);
-    drawObject4 = drawTest();
+    drawObject1.emplace(1);
+    drawObject2.emplace(3);
+    drawObject3.emplace(5);
+    drawObject4.emplace();
 
     testStack->AddToStack(&*drawObject1);
     testStack->AddToStack(&*drawObject2);
@@ -112,10 +112,10 @@ TEST(DrawStackTestGroup, partialAutoZDepth) {
 }
 
 TEST(DrawStackTestGroup, removeFromGroup) {
-    drawObject1 = drawTest();
-    drawObject2 = drawTest();
-    drawObject3 = drawTest();
-    drawObject4 = drawTest();
+    drawObject1.emplace();
+    drawObject2.emplace();
+    drawObject3.emplace();
+    drawObject4.emplace();
 
     testStack->AddToStack(&*drawObject1);
     testStack->AddToStack(&*drawObject2);
