@@ -10,6 +10,9 @@ namespace BurgerEngine2D {
     int getCloseWindowCalls();
     int getSetTargetCalls();
     int getWindowCloseCalls();
+
+    void setDrawDelay(int delay);
+    void resetDrawDelay();
 }
 
 #endif // RAYLIBMOCK_HPP

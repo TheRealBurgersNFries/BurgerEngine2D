@@ -3,6 +3,7 @@
 #include "CppUTestExt/MockSupport.h"
 
 #include <atomic>
+#include <thread>
 
 namespace BurgerEngine2D {
 
@@ -13,8 +14,11 @@ namespace BurgerEngine2D {
     inline std::atomic<int> setTargetFPSCalls{0};
     inline std::atomic<int> windowShouldCloseCalls{0};
 
+    int drawDelay = 0;
+
     void beginDrawing() {
         mock().actualCall("beginDrawing");
+        std::this_thread::sleep_for(std::chrono::milliseconds(drawDelay));
         beginDrawingCalls.fetch_add(1);
     }
 
@@ -75,6 +79,14 @@ namespace BurgerEngine2D {
 
     int getWindowCloseCalls() {
         return windowShouldCloseCalls;
+    }
+
+    void setDrawDelay(int delay) {
+        drawDelay = delay;
+    }
+
+    void resetDrawDelay() {
+        drawDelay = 0;
     }
     
 }

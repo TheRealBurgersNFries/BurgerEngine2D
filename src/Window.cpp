@@ -4,6 +4,7 @@
 
 #include <thread>
 #include <mutex>
+#include <cmath>
 
 namespace BurgerEngine2D {
 
@@ -29,7 +30,7 @@ namespace BurgerEngine2D {
     void Window::renderTask() {
         initWindow(_windowWidth, _windowHeight, _title.c_str());
         setTargetFPS(_targetFramerate);
-        int dt = 1 / _targetFramerate;
+        int dt = std::ceil(1000000.0f / _targetFramerate);
         const auto interval = std::chrono::microseconds(dt);
         while (*_running) {
             auto startTime = std::chrono::steady_clock::now();

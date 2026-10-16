@@ -43,6 +43,7 @@ TEST_GROUP(WindowTestGroup) {
 
     void teardown() {
         running = false;
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
         BurgerEngine2D::resetMockCalls();
     }
 
@@ -58,11 +59,51 @@ TEST_GROUP(WindowTestGroup) {
 
 TEST(WindowTestGroup, initializeAndExit) {
     mock().ignoreOtherCalls();
-
+    int test = BurgerEngine2D::getCloseWindowCalls();
+    test++;
     init();
     running = false;
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
     CHECK_EQUAL(1, BurgerEngine2D::getInitWindowCalls());
     CHECK_EQUAL(1, BurgerEngine2D::getCloseWindowCalls());
+    
 
+}
+
+TEST(WindowTestGroup, defaultRenderTiming) {
+    mock().ignoreOtherCalls();
+    
+    init();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    running = false;
+    int upperBound = 121;
+    int lowerBound = 119;
+
+    int beginCalls = BurgerEngine2D::getBeginDrawingCalls();
+    int endCalls = BurgerEngine2D::getEndDrawingCalls();
+    CHECK_COMPARE(lowerBound, <=, beginCalls);
+    CHECK_COMPARE(upperBound, >=, beginCalls);
+    CHECK_COMPARE(lowerBound, <=, endCalls);
+    CHECK_COMPARE(upperBound, >=, endCalls);
+}
+
+TEST(WindowTestGroup, longRenderTiming) {
+    BurgerEngine2D::setDrawDelay(10);
+
+    mock().ignoreOtherCalls();
+    
+    init();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    running = false;
+    int upperBound = 121;
+    int lowerBound = 119;
+
+    int beginCalls = BurgerEngine2D::getBeginDrawingCalls();
+    int endCalls = BurgerEngine2D::getEndDrawingCalls();
+    CHECK_COMPARE(lowerBound, <=, beginCalls);
+    CHECK_COMPARE(upperBound, >=, beginCalls);
+    CHECK_COMPARE(lowerBound, <=, endCalls);
+    CHECK_COMPARE(upperBound, >=, endCalls);
+
+    BurgerEngine2D::resetDrawDelay();
 }
