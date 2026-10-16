@@ -22,13 +22,8 @@ namespace BurgerEngine2D {
 
             _inputsAvailable = inputsAvailable;
 
-
-
             auto renderThread = std::thread(&Window::renderTask, this);
             renderThread.detach();
-
-
-
         }
     
     void Window::renderTask() {
