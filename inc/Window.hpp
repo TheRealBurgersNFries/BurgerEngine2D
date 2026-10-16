@@ -24,13 +24,17 @@ namespace BurgerEngine2D {
             void renderTask();
 
             void getInputs();
+            
         public:
             Window(std::atomic<bool>* running, int width, int height,
                 std::string title, int targetFrameRate,
                 BurgerEngine2D::DrawStack2D* stack, std::vector<int>* inputs,
                 std::atomic<bool>* inputsAvailable);
             
-            
+            void Start();
+
+            Window(const Window&) = delete;
+            Window& operator = (const Window&) = delete;
 
 
         

@@ -47,7 +47,7 @@ TEST_GROUP(WindowTestGroup) {
         BurgerEngine2D::DrawStack2D* stackPtr = stack ? std::addressof(stack.value()) : nullptr;
         std::vector<int>* inputsPtr = inputs ? std::addressof(inputs.value()) : nullptr;
 
-        testWindow = BurgerEngine2D::Window(runPtr, width, height,title,60, stackPtr, inputsPtr, availPtr);
+        testWindow.emplace(runPtr, width, height,title,60, stackPtr, inputsPtr, availPtr);
     }
 };
 
@@ -56,5 +56,5 @@ TEST(WindowTestGroup, Initialize) {
 
     init();
     running = false;
-    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
 }
