@@ -6,5 +6,6 @@
     "${workspaceFolder}/inc/wrappers",
     "${workspaceFolder}/test/mocks"
 
-  ]
+  ],
+  "C_Cpp.default.cStandard": "c23"
 }

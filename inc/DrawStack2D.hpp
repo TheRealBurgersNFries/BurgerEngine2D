@@ -1,13 +1,15 @@
 #ifndef DRAWSTACK_2D_HPP
 #define DRAWSTACK_2D_HPP
 
-#include <vector>
+#include "Camera2D.hpp"
 
+#include <vector>
 #include "raylib.h"
 
 //Forward declaration of namespace objects necessary for type declaration:
 namespace BurgerEngine2D {
     class I_Drawable;
+    class Camera2D;
 
 }
 
@@ -18,21 +20,38 @@ namespace BurgerEngine2D {
             std::vector<I_Drawable*> _addList;
             std::vector<I_Drawable*> _subList;
 
+            Camera2D* _camera;
+
             void sortSubs();
             void sortDraws();
 
             void removeSubs();
             void addNew();
 
+            bool inDrawlist(I_Drawable* drawable);
+            bool inSublist(I_Drawable* drawable);
+            bool inAddlist(I_Drawable* drawable);
+
             int _maxZ;
 
             int _maxAddedZ;
         public:
             void Draw();
-            void AddToStack(I_Drawable *drawable);
-            void removeFromStack(I_Drawable *drawable);
-            int getDrawCount();
-            int getMaxZDepth();
+
+            bool addToStack(I_Drawable* drawable);
+            bool isInStack(I_Drawable* drawable);
+            void removeFromStack(I_Drawable* drawable);
+
+            void setCamera(Camera2D* cam);
+            Camera2D* getCamera() const {
+                return _camera;
+            };
+
+            int getDrawCount() const;
+            int getMaxZDepth() const {
+                return _maxZ;
+            };
+
 
             DrawStack2D();
 

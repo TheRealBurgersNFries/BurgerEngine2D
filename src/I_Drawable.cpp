@@ -1,25 +1,19 @@
 #include "I_Drawable.hpp"
 
 namespace BurgerEngine2D {
-
-    int I_Drawable::getZDepth() const {
-        return _zDepth;
-    }
     
-    void I_Drawable::setZDepth(int val) {
-        _zDepth = val;
+    BurgerEngine2D::Vector2 I_Drawable::convertPosition(BurgerEngine2D::Vector2 position, float scale) const{
+        float x, y;
+        x = (_worldPosition.getX() - position.getX()) * scale;
+        y = (_worldPosition.getY() - position.getY()) * scale;
+        //TODO track window size to get delta from window origin to centered screen position of camera
+        return BurgerEngine2D::Vector2(x, y);
     }
 
-    bool I_Drawable::InStack() const {
-        return (_stack.has_value());
-    }
+    void I_Drawable::Draw(BurgerEngine2D::Vector2 position, float scale) const {
+        position = convertPosition(position, scale);
+        drawSpecific(position, scale);
 
-    void I_Drawable::addToStack(DrawStack2D* stack) {
-        _stack = &*stack;
-
-    }
-    void I_Drawable::removeFromStack() {
-        _stack.reset();
     }
 }
 

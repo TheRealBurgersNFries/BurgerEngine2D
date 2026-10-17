@@ -20,26 +20,12 @@ namespace BurgerEngine2D {
             removeSubs();
         if(_addList.size() > 0)
             addNew();
-        BurgerEngine2D::beginDrawing();
+        beginDrawing();
         for (std::vector<I_Drawable*>::iterator drawable = _drawList.begin(); drawable !=  //
             _drawList.end(); drawable++) {
-                (*drawable)->Draw();
+                (*drawable)->Draw(_camera->getPosition(), _camera->getScale());
         }
-        BurgerEngine2D::endDrawing();
-    }
-
-    void DrawStack2D::AddToStack(I_Drawable* drawable) {
-        int currentZ = drawable->getZDepth();
-        if (currentZ == 0)
-            drawable->setZDepth(++_maxAddedZ);
-        else if (currentZ > _maxAddedZ)
-            _maxAddedZ = currentZ;
-        drawable->addToStack(this);
-        _addList.push_back(drawable);
-    }
-
-    int DrawStack2D::getDrawCount() {
-        return (_drawList.size() + _addList.size() - _subList.size());
+        endDrawing();
     }
 
     void DrawStack2D::sortSubs() {
@@ -63,27 +49,68 @@ namespace BurgerEngine2D {
                 ++sub;
             } else {
                 // Same pointer: remove from both vectors.
-                (*sub)->removeFromStack();
-
+                sub = _subList.erase(sub);
                 draw = _drawList.erase(draw);
-                ++sub;
             }
         }
         _subList.clear();               
-    }
-
-    void DrawStack2D::removeFromStack(I_Drawable* drawable) {
-        _subList.push_back(drawable);
     }
 
     void DrawStack2D::addNew() {
         for (std::vector<I_Drawable*>::iterator drawable = _addList.begin(); drawable != //
         _addList.end(); drawable++) {
             _drawList.push_back(*drawable);
-            (*drawable)->addToStack(this);
         }
         sortDraws();
         _addList.clear();
     }
+
+    inline bool DrawStack2D::inDrawlist(I_Drawable* drawable) {
+        return (std::find(_drawList.begin(), _drawList.end(), drawable) != _drawList.end());
+    }
+
+    inline bool DrawStack2D::inSublist(I_Drawable* drawable) {
+        return (std::find(_subList.begin(), _subList.end(), drawable) != _subList.end());
+    }
+
+    inline bool DrawStack2D::inAddlist(I_Drawable* drawable) {
+        return (std::find(_addList.begin(), _addList.end(), drawable) != _addList.end());
+    }
+
+    bool DrawStack2D::addToStack(I_Drawable* drawable) {
+        if (!isInStack(drawable)){
+            int currentZ = drawable->getZDepth();
+            if (currentZ == 0)
+                drawable->setZDepth(++_maxAddedZ);
+            else if (currentZ > _maxAddedZ)
+                _maxAddedZ = currentZ;
+            _addList.push_back(drawable);
+            return true;
+        }
+        return false;
+    }
+
+    bool DrawStack2D::isInStack(I_Drawable* drawable) {
+        if (inAddlist(drawable))
+            return true;
+        if (inDrawlist(drawable) && !inSublist(drawable)) {
+            return true;
+        }
+        return false;
+
+    }
+
+    void DrawStack2D::removeFromStack(I_Drawable* drawable) {
+        if (inAddlist(drawable) || inSublist(drawable) || !inDrawlist(drawable))
+            return;
+        _subList.push_back(drawable);
+    }
     
+    int DrawStack2D::getDrawCount() const{
+        return (_drawList.size() + _addList.size() - _subList.size());
+    }
+
+    void DrawStack2D::setCamera(Camera2D* cam) {
+        _camera = cam;
+    }
 }
