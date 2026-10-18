@@ -7,5 +7,6 @@
     "${workspaceFolder}/test/mocks"
 
   ],
-  "C_Cpp.default.cStandard": "c23"
+  "C_Cpp.default.cStandard": "gnu23",
+  "C_Cpp.default.cppStandard": "gnu++23"
 }
