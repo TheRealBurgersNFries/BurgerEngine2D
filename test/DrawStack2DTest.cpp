@@ -15,8 +15,15 @@ TEST_GROUP(DrawStackTestGroup) {
     
     class drawTest : public BurgerEngine2D::I_Drawable {
         public:
-            void drawSpecific([[maybe_unused]]BurgerEngine2D::Vector2 position, [[maybe_unused]]float scale) const override  {
-                return;
+            int _testId = 0;
+            std::vector<int>* _drawOrder = nullptr;
+            void drawSpecific(
+                [[maybe_unused]] BurgerEngine2D::Vector2 position,
+                [[maybe_unused]] float scale
+            ) const override {
+                if (_drawOrder != nullptr) {
+                    _drawOrder->push_back(_testId);
+                }
             }
 
             drawTest() {
@@ -30,7 +37,13 @@ TEST_GROUP(DrawStackTestGroup) {
             BurgerEngine2D::Vector2 testOutput(BurgerEngine2D::Vector2 position, float scale, BurgerEngine2D::Vector2 offset) {
                 return (convertPosition(position, scale, offset));
             }
-    };
+
+            void setDrawTracking(int id, std::vector<int>* drawOrder) {
+                _testId = id;
+                _drawOrder = drawOrder;
+            }
+        };
+            
     
     std::optional<BurgerEngine2D::DrawStack2D> testStack = std::nullopt;
 
@@ -169,4 +182,142 @@ TEST(DrawStackTestGroup, drawCallsRaylibFunctions) {
 
     mock().checkExpectations();
     mock().clear();
+}
+
+TEST(DrawStackTestGroup, duplicateAdditionIsRejected) {
+    drawObject1.emplace();
+
+    CHECK_TRUE(testStack->addToStack(&*drawObject1));
+    CHECK_FALSE(testStack->addToStack(&*drawObject1));
+
+    CHECK_EQUAL(1, testStack->getDrawCount());
+}
+
+TEST(DrawStackTestGroup, removingUnknownDrawableDoesNothing) {
+    drawObject1.emplace();
+
+    testStack->removeFromStack(&*drawObject1);
+
+    CHECK_FALSE(testStack->isInStack(&*drawObject1));
+    CHECK_EQUAL(0, testStack->getDrawCount());
+}
+
+TEST(DrawStackTestGroup, duplicateRemovalIsIgnored) {
+    mock().ignoreOtherCalls();
+    drawObject1.emplace();
+
+    testStack->addToStack(&*drawObject1);
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f, 0.0f));
+
+    testStack->removeFromStack(&*drawObject1);
+    testStack->removeFromStack(&*drawObject1);
+
+    CHECK_EQUAL(0, testStack->getDrawCount());
+
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f, 0.0f));
+
+    CHECK_FALSE(testStack->isInStack(&*drawObject1));
+    CHECK_EQUAL(0, testStack->getDrawCount());
+}
+
+TEST(DrawStackTestGroup, removesMultipleDrawables) {
+    mock().ignoreOtherCalls();
+    drawObject1.emplace(1);
+    drawObject2.emplace(2);
+    drawObject3.emplace(3);
+    drawObject4.emplace(4);
+
+    testStack->addToStack(&*drawObject1);
+    testStack->addToStack(&*drawObject2);
+    testStack->addToStack(&*drawObject3);
+    testStack->addToStack(&*drawObject4);
+
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f, 0.0f));
+
+    testStack->removeFromStack(&*drawObject1);
+    testStack->removeFromStack(&*drawObject3);
+    testStack->removeFromStack(&*drawObject4);
+
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f, 0.0f));
+
+    CHECK_FALSE(testStack->isInStack(&*drawObject1));
+    CHECK_TRUE(testStack->isInStack(&*drawObject2));
+    CHECK_FALSE(testStack->isInStack(&*drawObject3));
+    CHECK_FALSE(testStack->isInStack(&*drawObject4));
+
+    CHECK_EQUAL(1, testStack->getDrawCount());
+}
+
+TEST(DrawStackTestGroup, removingDrawableDoesNotRemoveAnotherAtSameDepth) {
+    mock().ignoreOtherCalls();
+
+    drawObject1.emplace(5);
+    drawObject2.emplace(5);
+
+    testStack->addToStack(&*drawObject1);
+    testStack->addToStack(&*drawObject2);
+
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f, 0.0f));
+
+    testStack->removeFromStack(&*drawObject1);
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f, 0.0f));
+
+    CHECK_FALSE(testStack->isInStack(&*drawObject1));
+    CHECK_TRUE(testStack->isInStack(&*drawObject2));
+    CHECK_EQUAL(1, testStack->getDrawCount());
+}
+
+TEST(DrawStackTestGroup, removingPendingAdditionCancelsIt) {
+    mock().ignoreOtherCalls();
+    drawObject1.emplace(1);
+
+    testStack->addToStack(&*drawObject1);
+    CHECK_TRUE(testStack->isInStack(&*drawObject1));
+    CHECK_EQUAL(1, testStack->getDrawCount());
+
+    testStack->removeFromStack(&*drawObject1);
+
+    CHECK_FALSE(testStack->isInStack(&*drawObject1));
+    CHECK_EQUAL(0, testStack->getDrawCount());
+
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f, 0.0f));
+
+    CHECK_FALSE(testStack->isInStack(&*drawObject1));
+    CHECK_EQUAL(0, testStack->getDrawCount());
+}
+
+TEST(DrawStackTestGroup, drawingEmptyStackCallsRaylibWrappers) {
+    mock().expectOneCall("beginDrawing");
+    mock().expectOneCall("endDrawing");
+
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f, 0.0f));
+
+    mock().checkExpectations();
+    mock().clear();
+
+    CHECK_EQUAL(0, testStack->getDrawCount());
+}
+
+TEST(DrawStackTestGroup, drawsInAscendingZDepthOrder) {
+    mock().ignoreOtherCalls();
+    std::vector<int> drawOrder;
+
+    drawObject1.emplace(30);
+    drawObject2.emplace(10);
+    drawObject3.emplace(20);
+
+    drawObject1->setDrawTracking(1, &drawOrder);
+    drawObject2->setDrawTracking(2, &drawOrder);
+    drawObject3->setDrawTracking(3, &drawOrder);
+
+    testStack->addToStack(&*drawObject1);
+    testStack->addToStack(&*drawObject2);
+    testStack->addToStack(&*drawObject3);
+
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f, 0.0f));
+
+    CHECK_EQUAL(3, static_cast<int>(drawOrder.size()));
+    CHECK_EQUAL(2, drawOrder[0]);
+    CHECK_EQUAL(3, drawOrder[1]);
+    CHECK_EQUAL(1, drawOrder[2]);
 }

@@ -5,18 +5,21 @@ CXX             := g++
 # Source and build directories
 SRC_DIR         := src
 WRAP_SRC_DIR    := src/wrappers
+EVENT_SRC_DIR   := src/events
 OBJ_DIR         := build/obj
 DEBUG_OBJ_DIR   := build/debug/obj
 
 # Include directory
 INC_DIR         := inc
 WRAP_DIR        := inc/wrappers
+EVENT_INC_DIR   := inc/events
 
 # Test directories
 TEST_DIR            := test
 TEST_OBJ_DIR        := build/obj/test
 DEBUG_TEST_OBJ_DIR  := build/debug/obj/test
 MOCK_DIR            := test/mocks
+TEST_EVENT_DIR	   	:= test/event
 
 # Output directories
 BIN_DIR         := build/bin
@@ -29,7 +32,7 @@ DEBUG_TARGET        := $(LIB_DIR)/debug/libBurgerEngine2D.so
 DEBUG_TEST_TARGET   := $(BIN_DIR)/debug/testrunner
 
 # Source files
-SRCS            := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(WRAP_SRC_DIR)/*.cpp)
+SRCS            := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(WRAP_SRC_DIR)/*.cpp) $(wildcard $(EVENT_SRC_DIR)/*.cpp)
 TEST_SRCS       := $(wildcard $(TEST_DIR)/*.cpp) $(wildcard $(MOCK_DIR)/*.cpp)
 
 # Object files
@@ -71,13 +74,13 @@ LD_LIBS         := -L$(CPPUTEST_HOME)/lib -lCppUTest -lCppUTestExt
 
 # Compiler flags
 CXXFLAGS        := -std=c++23 -Wall -Wextra -Werror -pedantic -MP -MMD -fPIC
-CXXFLAGS        += -I$(INC_DIR) -I$(WRAP_DIR) $(RAYLIB_CFLAGS)
+CXXFLAGS        += -I$(INC_DIR) -I$(WRAP_DIR) -I$(EVENT_INC_DIR) $(RAYLIB_CFLAGS)
 
-CXXTESTFLAGS    := $(CXXFLAGS) -I$(MOCK_DIR) -I$(CPPUTEST_HOME)/include
+CXXTESTFLAGS    := $(CXXFLAGS) -I$(MOCK_DIR) -I$(TEST_EVENT_DIR) -I$(CPPUTEST_HOME)/include
 
 # Debug flags
 DEBUG_FLAGS     := -std=c++23 -Wall -Wextra -Werror -pedantic -g3 -O0 -DDEBUG -MP -MMD -fPIC
-DEBUG_FLAGS     += -I$(INC_DIR) -I$(MOCK_DIR) -I$(WRAP_DIR) $(RAYLIB_CFLAGS)
+DEBUG_FLAGS     += -I$(INC_DIR) -I$(MOCK_DIR) -I$(WRAP_DIR) -I$(EVENT_INC_DIR) $(RAYLIB_CFLAGS)
 
 DEBUG_TEST_FLAGS := $(DEBUG_FLAGS) -I$(CPPUTEST_HOME)/include
 

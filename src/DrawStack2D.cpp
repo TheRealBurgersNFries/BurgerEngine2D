@@ -101,7 +101,13 @@ namespace BurgerEngine2D {
     }
 
     void DrawStack2D::removeFromStack(I_Drawable* drawable) {
-        if (inAddlist(drawable) || inSublist(drawable) || !inDrawlist(drawable))
+        auto pending = std::find(_addList.begin(), _addList.end(), drawable);
+
+        if (pending != _addList.end()) {
+            _addList.erase(pending);
+            return;
+        }
+        if (inSublist(drawable) || !inDrawlist(drawable))
             return;
         _subList.push_back(drawable);
     }

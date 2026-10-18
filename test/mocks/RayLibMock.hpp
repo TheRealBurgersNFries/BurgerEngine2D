@@ -13,6 +13,16 @@ namespace BurgerEngine2D {
 
     void setDrawDelay(int delay);
     void resetDrawDelay();
+    
+    // Configure mock behavior
+    void setWindowShouldCloseResult(bool result);
+
+    // Inspect initialization arguments
+    int getLastWindowWidth();
+    int getLastWindowHeight();
+    // std::string getLastWindowTitle();
+    int getLastTargetFPS();
+
 }
 
 #endif // RAYLIBMOCK_HPP

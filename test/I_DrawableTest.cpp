@@ -10,23 +10,35 @@
 
 TEST_GROUP(I_DrawableTestGroup) {
     class drawTest : public BurgerEngine2D::I_Drawable {
-        public: 
-            void drawSpecific([[maybe_unused]]BurgerEngine2D::Vector2 pos, [[maybe_unused]]float scale) const override {
-                    return;
-                }
+        public:
+            mutable bool wasDrawn = false;
+            mutable BurgerEngine2D::Vector2 lastPosition;
+            mutable float lastScale = 0.0f;
+
+            void drawSpecific(
+                BurgerEngine2D::Vector2 pos,
+                float scale
+            ) const override {
+                wasDrawn = true;
+                lastPosition = pos;
+                lastScale = scale;
+            }
 
             drawTest() {
-                    setZDepth(0); 
-                }
+                setZDepth(0);
+            }
 
             drawTest(int depth) {
-                    setZDepth(depth);
-                }
-
-            BurgerEngine2D::Vector2 testOutput(BurgerEngine2D::Vector2 position, float scale, BurgerEngine2D::Vector2 offset) {
-                return (convertPosition(position, scale, offset));
+                setZDepth(depth);
             }
-            
+
+            BurgerEngine2D::Vector2 testOutput(
+                BurgerEngine2D::Vector2 position,
+                float scale,
+                BurgerEngine2D::Vector2 offset
+            ) {
+                return convertPosition(position, scale, offset);
+            }
     };
 
     std::optional<drawTest> testObject = std::nullopt;
@@ -81,4 +93,54 @@ TEST(I_DrawableTestGroup, convertPosition) {
 
     CHECK_TRUE(actual == expected);
 
+}
+
+TEST(I_DrawableTestGroup, drawCallsDrawSpecificWithConvertedPosition) {
+    BurgerEngine2D::Vector2 worldPosition(300.0f, 600.0f);
+    BurgerEngine2D::Vector2 cameraPosition(-400.0f, -200.0f);
+    BurgerEngine2D::Vector2 offset(0.0f, 0.0f);
+    float scale = 0.5f;
+
+    testObject->setPosition(worldPosition);
+
+    testObject->Draw(cameraPosition, scale, offset);
+
+    CHECK_TRUE(testObject->wasDrawn);
+    CHECK_TRUE(
+        testObject->lastPosition ==
+        BurgerEngine2D::Vector2(350.0f, 400.0f)
+    );
+    CHECK_EQUAL(scale, testObject->lastScale);
+}
+
+TEST(I_DrawableTestGroup, convertPositionWithOffset) {
+    testObject->setPosition(BurgerEngine2D::Vector2(300.0f, 600.0f));
+
+    BurgerEngine2D::Vector2 cameraPosition(-400.0f, -200.0f);
+    BurgerEngine2D::Vector2 offset(10.0f, 20.0f);
+
+    BurgerEngine2D::Vector2 expected(340.0f, 380.0f);
+
+    auto actual = testObject->testOutput(
+        cameraPosition,
+        0.5f,
+        offset
+    );
+
+    CHECK_TRUE(actual == expected);
+}
+
+TEST(I_DrawableTestGroup, convertPositionWithUnitScale) {
+    testObject->setPosition(BurgerEngine2D::Vector2(100.0f, 200.0f));
+
+    BurgerEngine2D::Vector2 cameraPosition(25.0f, 50.0f);
+    BurgerEngine2D::Vector2 expected(75.0f, 150.0f);
+
+    auto actual = testObject->testOutput(
+        cameraPosition,
+        1.0f,
+        BurgerEngine2D::Vector2(0.0f, 0.0f)
+    );
+
+    CHECK_TRUE(actual == expected);
 }
