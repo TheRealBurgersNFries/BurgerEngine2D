@@ -35,7 +35,7 @@ namespace BurgerEngine2D {
         while (*_running) {
             auto startTime = std::chrono::steady_clock::now();
             if (!windowShouldClose()) {
-                _stack->Draw();
+                _stack->Draw(BurgerEngine2D::Vector2(_windowWidth/2, _windowHeight/2));
                 //inputsAvailable = getInputs();
             } else {
                 *_running = false;

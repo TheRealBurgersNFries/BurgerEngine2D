@@ -21,12 +21,14 @@ namespace BurgerEngine2D {
         protected:
             I_Drawable() = default;
             BurgerEngine2D::Vector2 _worldPosition;
-            BurgerEngine2D::Vector2 convertPosition(BurgerEngine2D::Vector2 position, float scale) const;
+            BurgerEngine2D::Vector2 convertPosition(BurgerEngine2D::Vector2 position, 
+                float scale, BurgerEngine2D::Vector2 offset) const;
 
             virtual void drawSpecific(BurgerEngine2D::Vector2 position, float scale) const = 0;
         public:
             virtual ~I_Drawable() = default;
-            void Draw(BurgerEngine2D::Vector2 position, float scale) const;
+            void Draw(BurgerEngine2D::Vector2 position, float scale, 
+                    BurgerEngine2D::Vector2 offset) const;
 
             int getZDepth() const {
                 return _zDepth;

@@ -15,7 +15,7 @@ namespace BurgerEngine2D {
         _maxAddedZ = -1;
     }
 
-    void DrawStack2D::Draw() {
+    void DrawStack2D::Draw(BurgerEngine2D::Vector2 offset) {
         if(_subList.size() > 0)
             removeSubs();
         if(_addList.size() > 0)
@@ -23,7 +23,7 @@ namespace BurgerEngine2D {
         beginDrawing();
         for (std::vector<I_Drawable*>::iterator drawable = _drawList.begin(); drawable !=  //
             _drawList.end(); drawable++) {
-                (*drawable)->Draw(_camera->getPosition(), _camera->getScale());
+                (*drawable)->Draw(_camera->getPosition(), _camera->getScale(), offset);
         }
         endDrawing();
     }

@@ -23,8 +23,8 @@ TEST_GROUP(I_DrawableTestGroup) {
                     setZDepth(depth);
                 }
 
-            BurgerEngine2D::Vector2 testOutput(BurgerEngine2D::Vector2 position, float scale) {
-                return (convertPosition(position, scale));
+            BurgerEngine2D::Vector2 testOutput(BurgerEngine2D::Vector2 position, float scale, BurgerEngine2D::Vector2 offset) {
+                return (convertPosition(position, scale, offset));
             }
             
     };
@@ -77,7 +77,7 @@ TEST(I_DrawableTestGroup, convertPosition) {
     BurgerEngine2D::Vector2 position(300,600);
 
     testObject->setPosition(position);
-    auto actual = testObject->testOutput(camPosition, scale);
+    auto actual = testObject->testOutput(camPosition, scale, BurgerEngine2D::Vector2(0.0f, 0.0f));
 
     CHECK_TRUE(actual == expected);
 

@@ -22,13 +22,13 @@ TEST_GROUP(DrawStackTestGroup) {
             drawTest() {
                 setZDepth(0); 
             }
-            
+
             drawTest(int depth) {
                 setZDepth(depth);
             }
 
-            BurgerEngine2D::Vector2 testOutput(BurgerEngine2D::Vector2 position, float scale) {
-                return (convertPosition(position, scale));
+            BurgerEngine2D::Vector2 testOutput(BurgerEngine2D::Vector2 position, float scale, BurgerEngine2D::Vector2 offset) {
+                return (convertPosition(position, scale, offset));
             }
     };
     
@@ -127,11 +127,11 @@ TEST(DrawStackTestGroup, checkDrawCount) {
     testStack->addToStack(&*drawObject3);
     testStack->addToStack(&*drawObject4);
     
-    testStack->Draw();
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f,0.0f));
 
     testStack->removeFromStack(&*drawObject1);
 
-    testStack->Draw();
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f,0.0f));
     
     
     CHECK_EQUAL(3, testStack->getDrawCount());
@@ -151,11 +151,11 @@ TEST(DrawStackTestGroup, removeFromGroup) {
     testStack->addToStack(&*drawObject3);
     testStack->addToStack(&*drawObject4);
     
-    testStack->Draw();
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f,0.0f));
 
     testStack->removeFromStack(&*drawObject1);
 
-    testStack->Draw();
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f,0.0f));
     
     
     CHECK_FALSE(testStack->isInStack(&*drawObject1));
@@ -165,7 +165,7 @@ TEST(DrawStackTestGroup, drawCallsRaylibFunctions) {
     mock().expectOneCall("beginDrawing");
     mock().expectOneCall("endDrawing");
 
-    testStack->Draw();
+    testStack->Draw(BurgerEngine2D::Vector2(0.0f,0.0f));
 
     mock().checkExpectations();
     mock().clear();

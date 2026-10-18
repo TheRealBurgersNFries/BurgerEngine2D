@@ -36,7 +36,7 @@ namespace BurgerEngine2D {
 
             int _maxAddedZ;
         public:
-            void Draw();
+            void Draw(BurgerEngine2D::Vector2 offset);
 
             bool addToStack(I_Drawable* drawable);
             bool isInStack(I_Drawable* drawable);
