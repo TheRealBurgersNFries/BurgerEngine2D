@@ -4,6 +4,7 @@
   "C_Cpp.default.includePath": [
     "${workspaceFolder}/inc/",
     "${workspaceFolder}/inc/wrappers",
+    "${workspaceFolder}/inc/event",
     "${workspaceFolder}/test/mocks"
 
   ],

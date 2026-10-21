@@ -5,14 +5,14 @@ CXX             := g++
 # Source and build directories
 SRC_DIR         := src
 WRAP_SRC_DIR    := src/wrappers
-EVENT_SRC_DIR   := src/events
+EVENT_SRC_DIR   := src/event
 OBJ_DIR         := build/obj
 DEBUG_OBJ_DIR   := build/debug/obj
 
 # Include directory
 INC_DIR         := inc
 WRAP_DIR        := inc/wrappers
-EVENT_INC_DIR   := inc/events
+EVENT_INC_DIR   := inc/event
 
 # Test directories
 TEST_DIR            := test
