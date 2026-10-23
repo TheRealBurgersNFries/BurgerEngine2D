@@ -32,8 +32,13 @@ DEBUG_TARGET        := $(LIB_DIR)/debug/libBurgerEngine2D.so
 DEBUG_TEST_TARGET   := $(BIN_DIR)/debug/testrunner
 
 # Source files
-SRCS            := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(WRAP_SRC_DIR)/*.cpp) $(wildcard $(EVENT_SRC_DIR)/*.cpp)
-TEST_SRCS       := $(wildcard $(TEST_DIR)/*.cpp) $(wildcard $(MOCK_DIR)/*.cpp)
+SRCS                := $(wildcard $(SRC_DIR)/*.cpp) \
+                       $(wildcard $(WRAP_SRC_DIR)/*.cpp) \
+                       $(wildcard $(EVENT_SRC_DIR)/*.cpp)
+
+TEST_SRCS           := $(wildcard $(TEST_DIR)/*.cpp) \
+                       $(wildcard $(MOCK_DIR)/*.cpp) \
+                       $(wildcard $(TEST_EVENT_DIR)/*.cpp)
 
 # Object files
 OBJS            := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
