@@ -8,13 +8,19 @@ namespace BurgerEngine2D
     {
         Null            = 0,
 
-        // Alphanumeric keys
         Apostrophe      = 39,
         Comma           = 44,
         Minus           = 45,
         Period          = 46,
         Slash           = 47,
-
+        Semicolon       = 59,
+        Equal           = 61,
+        LeftBracket     = 91,
+        Backslash       = 92,
+        RightBracket    = 93,
+        Grave           = 96,
+        
+        // Alphanumeric keys
         Zero            = 48,
         One             = 49,
         Two             = 50,
@@ -25,9 +31,6 @@ namespace BurgerEngine2D
         Seven           = 55,
         Eight           = 56,
         Nine            = 57,
-
-        Semicolon       = 59,
-        Equal           = 61,
 
         A               = 65,
         B               = 66,
@@ -56,10 +59,6 @@ namespace BurgerEngine2D
         Y               = 89,
         Z               = 90,
 
-        LeftBracket     = 91,
-        Backslash       = 92,
-        RightBracket    = 93,
-        Grave           = 96,
 
         // Control keys
         Space           = 32,
