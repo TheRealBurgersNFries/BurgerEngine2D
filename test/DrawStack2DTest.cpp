@@ -10,10 +10,8 @@
 
 #include "CppUTestExt/MockSupport.h"
 
-TEST_GROUP(DrawStackTestGroup) {
-
-    
-    class drawTest : public BurgerEngine2D::I_Drawable {
+namespace {
+        class drawTest : public BurgerEngine2D::I_Drawable {
         public:
             int _testId = 0;
             std::vector<int>* _drawOrder = nullptr;
@@ -52,6 +50,12 @@ TEST_GROUP(DrawStackTestGroup) {
     std::optional<drawTest> drawObject3 = std::nullopt;
     std::optional<drawTest> drawObject4 = std::nullopt;
     BurgerEngine2D::Camera2D camera = BurgerEngine2D::Camera2D();
+}
+
+TEST_GROUP(DrawStackTestGroup) {
+
+    
+
 
     void setup() {
         MemoryLeakWarningPlugin::saveAndDisableNewDeleteOverloads();
