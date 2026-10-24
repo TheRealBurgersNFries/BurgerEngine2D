@@ -31,6 +31,8 @@ namespace BurgerEngine2D {
             virtual void setMass(float mass) noexcept = 0;
 
             virtual void onCollision(I_Collidable& other) = 0;
+            
+            virtual void processMotion(float deltaTime) = 0;
     };
 }
 
