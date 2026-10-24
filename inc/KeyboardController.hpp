@@ -8,19 +8,21 @@
 #include <vector>
 
 #include "KeyboardWrapper.hpp"
+#include "KeyboardKey.hpp"
 
 namespace BurgerEngine2D {
-
-    using SubscriptionId = std::size_t;
+    using Key = BurgerEngine2D::KeyboardKey;
+    
     
     class KeyboardController {
         
         public:
-            using KeyCallback = std::function<void(int)>;
-            
+            using KeyCallback = std::function<void(Key)>;
+            using SubscriptionId = std::size_t;
+
             explicit KeyboardController(KeyboardWrapper& keyboard);
             
-            SubscriptionId subscribe(int key, KeyCallback callback);
+            SubscriptionId subscribe(Key key, KeyCallback callback);
             void unsubscribe(SubscriptionId id);
             
             void update();
@@ -32,7 +34,7 @@ namespace BurgerEngine2D {
             };
             
             KeyboardWrapper& _keyboard;
-            std::unordered_map<int, std::vector<Listener>> _keyRegistry;
+            std::unordered_map<Key, std::vector<Listener>> _keyRegistry;
             SubscriptionId _nextId = 1;
         
     };

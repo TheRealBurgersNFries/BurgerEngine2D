@@ -2,11 +2,12 @@
 #define KEYBOARD_MOCK_HPP
 
 namespace BurgerEngine2D {
+    using Key = BurgerEngine2D::KeyboardKey;
 
-    void mockPressKey(int key);
-    void mockReleaseKey(int key);
+    void mockPressKey(Key key);
+    void mockReleaseKey(Key key);
     void mockResetKeyboard();
-    int mockGetQueryCount(int key);
+    int mockGetQueryCount(Key key);
 
 }
 

@@ -2,10 +2,12 @@
 #define KEYBOARD_WRAPPER_HPP
 
 namespace BurgerEngine2D {
+    enum class KeyboardKey : int;
+    using Key = BurgerEngine2D::KeyboardKey;
 
     class KeyboardWrapper {
     public:
-        static bool isKeyPressed(int key);
+        static bool isKeyPressed(Key key);
     };
 
 }

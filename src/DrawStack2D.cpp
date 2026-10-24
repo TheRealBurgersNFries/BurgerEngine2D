@@ -1,5 +1,6 @@
 #include "DrawStack2D.hpp"
 #include "I_Drawable.hpp"
+#include "KeyboardController.hpp"
 #include "helper.hpp"
 
 #include "RayLibWrapper.hpp"
@@ -9,13 +10,17 @@
 #include <unordered_set>
 
 namespace BurgerEngine2D {
-    
-    DrawStack2D::DrawStack2D() {
-        _maxZ = -1;
-        _maxAddedZ = -1;
-    }
+    DrawStack2D::DrawStack2D()
+        : _defaultCamera(),
+        _camera(&_defaultCamera),
+        _keyboardController(nullptr),
+        _maxZ(-1),
+        _maxAddedZ(-1) {}
 
     void DrawStack2D::Draw(BurgerEngine2D::Vector2 offset) {
+        if (_camera == nullptr) {
+            throw std::runtime_error("Camera not set for DrawStack2D.");
+        }
         if(_subList.size() > 0)
             removeSubs();
         if(_addList.size() > 0)
@@ -26,6 +31,9 @@ namespace BurgerEngine2D {
                 (*drawable)->Draw(_camera->getPosition(), _camera->getScale(), offset);
         }
         endDrawing();
+
+        if (_keyboardController != nullptr)
+            _keyboardController->update();
     }
 
     void DrawStack2D::sortSubs() {
@@ -118,5 +126,9 @@ namespace BurgerEngine2D {
 
     void DrawStack2D::setCamera(Camera2D* cam) {
         _camera = cam;
+    }
+
+    void DrawStack2D::setKeyboardController( KeyboardController* controller) {
+        _keyboardController = controller;
     }
 }

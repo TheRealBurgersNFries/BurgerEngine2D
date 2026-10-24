@@ -1,6 +1,7 @@
 #include "Window.hpp"
 
 #include "DrawStack2D.hpp"
+#include "Vector2.hpp"
 
 #include <thread>
 #include <mutex>

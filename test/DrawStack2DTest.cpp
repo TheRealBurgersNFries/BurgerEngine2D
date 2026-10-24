@@ -4,6 +4,7 @@
 
 #include "DrawStack2D.hpp"
 #include "I_Drawable.hpp"
+#include "Camera2D.hpp"
 
 #include "CppUTest/TestHarness.h"
 #include "CppUTest/MemoryLeakDetectorNewMacros.h"

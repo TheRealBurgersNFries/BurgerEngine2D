@@ -1,10 +1,13 @@
 #include "wrappers/KeyboardWrapper.hpp"
 #include "raylib.h"
 
-namespace BurgerEngine2D {
+#include "KeyboardKey.hpp"
 
-    bool KeyboardWrapper::isKeyPressed(int key) {
-        return IsKeyDown(key);
+namespace BurgerEngine2D {
+    using Key = BurgerEngine2D::KeyboardKey;
+
+    bool KeyboardWrapper::isKeyPressed(Key key) {
+        return IsKeyDown(static_cast<int>(key));
     }
 
 }

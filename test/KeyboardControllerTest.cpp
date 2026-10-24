@@ -1,11 +1,18 @@
+#include <cstddef>
 #include <optional>
 
 #include "KeyboardController.hpp"
-#include "wrappers/KeyboardWrapper.hpp"
-#include "mocks/KeyboardMock.hpp"
+#include "KeyboardKey.hpp"
+#include "KeyboardWrapper.hpp"
+#include "KeyboardMock.hpp"
 
 #include "CppUTest/TestHarness.h"
 #include "CppUTest/MemoryLeakDetectorNewMacros.h"
+
+namespace {
+    using Key = BurgerEngine2D::KeyboardKey;
+    using SubscriptionId = std::size_t;
+}
 
 TEST_GROUP(KeyboardControllerTestGroup) {
     BurgerEngine2D::KeyboardWrapper keyboard;
@@ -25,12 +32,12 @@ TEST_GROUP(KeyboardControllerTestGroup) {
 };
 
 TEST(KeyboardControllerTestGroup, SubscribedListenerReceivesKeyEvent) {
-    constexpr int TEST_KEY = 65;
+    constexpr Key TEST_KEY = Key::A;
 
     int callbackCount = 0;
 
-    controller->subscribe(TEST_KEY, [&](int key) {
-        CHECK_EQUAL(TEST_KEY, key);
+    controller->subscribe(TEST_KEY, [&](Key key) {
+        CHECK_EQUAL(static_cast<int>(TEST_KEY),static_cast<int>(key));
         ++callbackCount;
     });
 
@@ -41,21 +48,20 @@ TEST(KeyboardControllerTestGroup, SubscribedListenerReceivesKeyEvent) {
 }
 
 TEST(KeyboardControllerTestGroup, SubscribeRegistersKey) {
-    constexpr int TEST_KEY = 65;
+    constexpr Key TEST_KEY = Key::A;
 
-    controller->subscribe(TEST_KEY, [](int) {});
+    controller->subscribe(TEST_KEY, [](Key) {});
 
     controller->update();
 
     CHECK_EQUAL(1, BurgerEngine2D::mockGetQueryCount(TEST_KEY));
 }
 
-
 TEST(KeyboardControllerTestGroup, MultipleSubscriptionsRegisterKeyOnce) {
-    constexpr int TEST_KEY = 65;
+    constexpr Key TEST_KEY = Key::A;
 
-    controller->subscribe(TEST_KEY, [](int) {});
-    controller->subscribe(TEST_KEY, [](int) {});
+    controller->subscribe(TEST_KEY, [](Key) {});
+    controller->subscribe(TEST_KEY, [](Key) {});
 
     controller->update();
 
@@ -63,17 +69,17 @@ TEST(KeyboardControllerTestGroup, MultipleSubscriptionsRegisterKeyOnce) {
 }
 
 TEST(KeyboardControllerTestGroup, UnsubscribeRemovesOnlySpecifiedListener) {
-    constexpr int TEST_KEY = 65;
+    constexpr Key TEST_KEY = Key::A;
 
     int firstCount = 0;
     int secondCount = 0;
 
-    const BurgerEngine2D::SubscriptionId firstId =
-        controller->subscribe(TEST_KEY, [&](int) {
+    const std::size_t firstId =
+        controller->subscribe(TEST_KEY, [&](Key) {
             ++firstCount;
         });
 
-    controller->subscribe(TEST_KEY, [&](int) {
+    controller->subscribe(TEST_KEY, [&](Key) {
         ++secondCount;
     });
 
@@ -88,10 +94,10 @@ TEST(KeyboardControllerTestGroup, UnsubscribeRemovesOnlySpecifiedListener) {
 }
 
 TEST(KeyboardControllerTestGroup, LastUnsubscribeRemovesKeyFromRegistry) {
-    constexpr int TEST_KEY = 65;
+    constexpr Key TEST_KEY = Key::A;
 
-    const BurgerEngine2D::SubscriptionId id =
-        controller->subscribe(TEST_KEY, [](int) {});
+    const std::size_t id =
+        controller->subscribe(TEST_KEY, [](Key) {});
 
     controller->unsubscribe(id);
 
@@ -101,13 +107,13 @@ TEST(KeyboardControllerTestGroup, LastUnsubscribeRemovesKeyFromRegistry) {
 }
 
 TEST(KeyboardControllerTestGroup, KeyRemainsRegisteredUntilLastUnsubscribe) {
-    constexpr int TEST_KEY = 65;
+    constexpr Key TEST_KEY = Key::A;
 
-    const BurgerEngine2D::SubscriptionId firstId =
-        controller->subscribe(TEST_KEY, [](int) {});
+    const SubscriptionId firstId =
+        controller->subscribe(TEST_KEY, [](Key) {});
 
-    const BurgerEngine2D::SubscriptionId secondId =
-        controller->subscribe(TEST_KEY, [](int) {});
+    const SubscriptionId secondId =
+        controller->subscribe(TEST_KEY, [](Key) {});
 
     controller->unsubscribe(firstId);
     controller->update();
@@ -121,14 +127,14 @@ TEST(KeyboardControllerTestGroup, KeyRemainsRegisteredUntilLastUnsubscribe) {
 }
 
 TEST(KeyboardControllerTestGroup, RepeatedUnsubscribeDoesNotBreakRegistry) {
-    constexpr int TEST_KEY = 65;
+    constexpr Key TEST_KEY = Key::A;
 
     int callbackCount = 0;
 
-    const BurgerEngine2D::SubscriptionId firstId =
-        controller->subscribe(TEST_KEY, [](int) {});
+    const SubscriptionId firstId =
+        controller->subscribe(TEST_KEY, [](Key) {});
 
-    controller->subscribe(TEST_KEY, [&](int) {
+    controller->subscribe(TEST_KEY, [&](Key) {
         ++callbackCount;
     });
 
@@ -143,11 +149,11 @@ TEST(KeyboardControllerTestGroup, RepeatedUnsubscribeDoesNotBreakRegistry) {
 }
 
 TEST(KeyboardControllerTestGroup, UnknownSubscriptionIdDoesNotAffectListeners) {
-    constexpr int TEST_KEY = 65;
+    constexpr Key TEST_KEY = Key::A;
 
     int callbackCount = 0;
 
-    controller->subscribe(TEST_KEY, [&](int) {
+    controller->subscribe(TEST_KEY, [&](Key) {
         ++callbackCount;
     });
 

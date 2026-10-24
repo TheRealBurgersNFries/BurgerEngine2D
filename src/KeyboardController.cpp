@@ -1,16 +1,20 @@
+
 #include "KeyboardController.hpp"
+
+#include "Dispatcher.hpp"
+#include "KeyPressedEvent.hpp"
 
 #include <algorithm>
 #include <utility>
 
 namespace BurgerEngine2D {
+    using Key = BurgerEngine2D::KeyboardKey;
+    using SubscriptionId = std::size_t;
 
     KeyboardController::KeyboardController(KeyboardWrapper& keyboard)
         : _keyboard(keyboard) {}
 
-    SubscriptionId KeyboardController::subscribe(
-        int key,
-        KeyCallback callback) {
+    SubscriptionId KeyboardController::subscribe(Key key, KeyCallback callback) {
         const SubscriptionId id = _nextId++;
 
         _keyRegistry[key].push_back({id, std::move(callback)});
@@ -37,20 +41,38 @@ namespace BurgerEngine2D {
     }
 
     void KeyboardController::update() {
-        for (const auto& [key, listeners] : _keyRegistry) {
-            if (!_keyboard.isKeyPressed(key)) {
-                continue;
-            }
+            struct ActiveBinding {
+                Key key;
+                std::vector<KeyCallback> callbacks;
+            };
 
-            std::vector<KeyCallback> callbacks;
-            callbacks.reserve(listeners.size());
+        std::vector<ActiveBinding> activeBindings;
+        activeBindings.reserve(_keyRegistry.size());
+
+        for (const auto& [key, listeners] : _keyRegistry) {
+            if (listeners.empty() || !_keyboard.isKeyPressed(key))
+                continue;
+
+            ActiveBinding binding;
+            binding.key = key;
+            binding.callbacks.reserve(listeners.size());
 
             for (const auto& listener : listeners) {
-                callbacks.push_back(listener.callback);
+                binding.callbacks.push_back(listener.callback);
             }
 
-            for (const auto& callback : callbacks) {
-                callback(key);
+            activeBindings.push_back(std::move(binding));
+        }
+
+        for (const auto& binding : activeBindings) {
+            Dispatcher::queueEvent(std::make_shared<KeyPressedEvent>(
+                    static_cast<KeyboardKey>(binding.key)
+                )
+            );
+
+            for (const auto& callback : binding.callbacks) {
+                if (callback)
+                    callback(binding.key);
             }
         }
     }
