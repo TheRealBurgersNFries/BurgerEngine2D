@@ -10,10 +10,11 @@
 #include "I_Collidable.hpp"
 
     namespace BurgerEngine2D {
+    class Dispatcher;
 
     class PhysicsSystem2D {
     public:
-        PhysicsSystem2D();
+        PhysicsSystem2D(BurgerEngine2D::Dispatcher* dispatcher);
         ~PhysicsSystem2D();
 
         PhysicsSystem2D(const PhysicsSystem2D&) = delete;
@@ -33,11 +34,19 @@
         void processMotion(const std::vector<I_Collidable*>& collidables, 
             float deltaTime);
 
+        void detectCollisions(const std::vector<I_Collidable*>& collidables);
+        
+        bool isCircleColliding (const BurgerEngine2D::I_Collidable* a,
+                 const BurgerEngine2D::I_Collidable* b);
+
         std::vector<I_Collidable*> _collidables;
         std::mutex _collidablesMutex;
 
         std::thread _physicsThread;
         std::atomic<bool> _running;
+
+        BurgerEngine2D::Dispatcher* _dispatcher;
+
     };
 
 }

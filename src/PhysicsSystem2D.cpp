@@ -4,11 +4,15 @@
 #include <algorithm>
 #include <execution>
 #include <chrono>
+#include <memory>
+
+#include "Dispatcher.hpp"
+#include "CollisionEvent.hpp"
 
 namespace BurgerEngine2D {
 
-    PhysicsSystem2D::PhysicsSystem2D()
-        : _running(false) {
+    PhysicsSystem2D::PhysicsSystem2D(BurgerEngine2D::Dispatcher* dispatcher)
+        : _running(false), _dispatcher(dispatcher) {
     }
 
     PhysicsSystem2D::~PhysicsSystem2D() {
@@ -88,6 +92,7 @@ namespace BurgerEngine2D {
 
         processMotion(collidables, deltaTime);
         
+        detectCollisions(collidables);
         // Motion processing, collision detection, and event dispatch follow.
     }
 
@@ -96,6 +101,48 @@ namespace BurgerEngine2D {
 
         return _collidables;
     }
+
+    void PhysicsSystem2D::detectCollisions(
+        const std::vector<I_Collidable*>& collidables) {
+        for (auto current = collidables.begin(); current != collidables.end();
+                ++current) {
+            I_Collidable* first = *current;
+
+            if (first == nullptr) {
+                continue;
+            }
+
+            std::for_each(
+                current + 1,
+                collidables.end(),
+                [this, first](I_Collidable* other) {
+                    if (other == nullptr) {
+                        return;
+                    }
+
+                    if (isCircleColliding(first, other)) {
+                        if (_dispatcher != nullptr) {
+                            _dispatcher->queueEvent(
+                                std::make_shared<CollisionEvent>(
+                                    first, other)
+                            );
+                        }
+                    }
+                }
+            );
+        }
+    }
+
+
+    bool PhysicsSystem2D::isCircleColliding (const BurgerEngine2D::I_Collidable* a, 
+        const BurgerEngine2D::I_Collidable* b) {
+            const float dx = a->getCenter().getX() - b->getCenter().getX();
+            const float dy = a->getCenter().getY() - b->getCenter().getY();
+
+            const float radiusSum = a->getRadius() + b->getRadius();
+
+            return (dx * dx + dy * dy) < (radiusSum * radiusSum);
+        }
 
     void PhysicsSystem2D::processMotion(const std::vector<I_Collidable*>& collidables,
         float deltaTime) {

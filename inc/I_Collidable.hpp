@@ -3,10 +3,15 @@
 #define I_COLLIDABLE_HPP
 
 #include "Vector2.hpp"
+#include "I_Shape.hpp"
 
 namespace BurgerEngine2D {
-    class I_Collidable {
+    class I_Collidable : public I_Shape{
         public:
+
+            explicit I_Collidable(const std::vector<Vector2>& points)
+                : I_Shape(points) {}
+
             virtual ~I_Collidable() = default;
 
             virtual Vector2 getVelocity() const noexcept = 0;
