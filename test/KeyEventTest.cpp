@@ -19,6 +19,8 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTest/MemoryLeakDetectorNewMacros.h"
 
+#include "CppUTestExt/MockSupport.h"
+
 namespace {
     using Key = BurgerEngine2D::KeyboardKey;
 
@@ -244,6 +246,7 @@ TEST(KeyEventTestGroup, unsubscribedKeyBindingStopsInvokingCallback) {
 }
 
 TEST(KeyEventTestGroup, drawStackUpdatesKeyboardControllerAfterDrawing) {
+    mock().ignoreOtherCalls();
     RecordingKeySubscriber subscriber;
     subscribeToKeyPressed(subscriber);
 
@@ -268,6 +271,7 @@ TEST(KeyEventTestGroup, drawStackUpdatesKeyboardControllerAfterDrawing) {
 }
 
 TEST(KeyEventTestGroup, drawStackWithoutKeyboardControllerStillDraws) {
+    mock().ignoreOtherCalls();
     BurgerEngine2D::DrawStack2D drawStack;
 
     drawStack.Draw(BurgerEngine2D::Vector2{0.0f, 0.0f});
