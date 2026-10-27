@@ -2,6 +2,8 @@
 
 #include "DrawStack2D.hpp"
 #include "Vector2.hpp"
+#include "UpdateCompleteEvent.hpp"
+#include "RenderCompleteEvent.hpp"
 
 #include <thread>
 #include <mutex>
@@ -43,6 +45,7 @@ namespace BurgerEngine2D {
             }
             auto endTime = std::chrono::steady_clock::now();
             auto elapsed = (endTime - startTime);
+            
             #ifdef LOG_LEVEL_INFO
                 int threadTime = (std::chrono::duration_cast<std::chrono::microseconds>(elapsed)).count();
                 std::cout << _threadName + " Runtime:" + std::to_string(_threadTime) + "us" << std::endl;

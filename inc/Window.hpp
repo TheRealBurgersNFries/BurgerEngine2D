@@ -2,6 +2,7 @@
 #define WINDOW_HPP
 
 #include "DrawStack2D.hpp"
+#include "Dispatcher.hpp"
 
 #include "RayLibWrapper.hpp"
 
@@ -12,6 +13,9 @@ namespace BurgerEngine2D {
     class Window {
         private:
             BurgerEngine2D::DrawStack2D* _stack;
+            
+            BurgerEngine2D::Dispatcher* _dispatcher;
+            
             int _windowWidth;
             int _windowHeight;
             int _targetFramerate;
