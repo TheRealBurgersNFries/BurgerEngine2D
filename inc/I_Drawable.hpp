@@ -2,6 +2,7 @@
 #define INTERFACE_IDRAWABLE_HPP
 
 #include "Vector2.hpp"
+#include "I_Positioned.hpp"
 
 #include "raylib.h"
 
@@ -14,13 +15,12 @@ namespace BurgerEngine2D {
 
 namespace BurgerEngine2D {
 
-    class I_Drawable {
+    class I_Drawable : public virtual I_Positioned {
         private:
             int _zDepth;
             
         protected:
             I_Drawable() = default;
-            BurgerEngine2D::Vector2 _worldPosition;
             BurgerEngine2D::Vector2 convertPosition(BurgerEngine2D::Vector2 position, 
                 float scale, BurgerEngine2D::Vector2 offset) const;
 
@@ -33,16 +33,8 @@ namespace BurgerEngine2D {
             int getZDepth() const {
                 return _zDepth;
             };
-            BurgerEngine2D::Vector2 getPosition() const {
-                return _worldPosition;
-            };
-
-            
             void setZDepth(int val) {
                 _zDepth = val;
-            }
-            void setPosition(BurgerEngine2D::Vector2 position) {
-                _worldPosition = position;
             }
 
             

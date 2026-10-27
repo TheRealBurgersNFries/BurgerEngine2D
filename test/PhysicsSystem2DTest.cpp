@@ -8,10 +8,12 @@
 
 #include "PhysicsSystem2D.hpp"
 #include "I_Collidable.hpp"
+#include "I_Drawable.hpp"
 #include "I_Shape.hpp"
 
 namespace {
-    class TestCollidable : public BurgerEngine2D::I_Collidable {
+    class TestCollidable : public BurgerEngine2D::I_Drawable,
+                          public BurgerEngine2D::I_Collidable {
     public:
         TestCollidable(float x, float y, float radius)
             : BurgerEngine2D::I_Collidable({
@@ -88,9 +90,12 @@ namespace {
         }
 
         void processMotion(float deltaTime) override {
-            (void)deltaTime;
+            BurgerEngine2D::I_Collidable::processMotion(deltaTime);
             _motionCount.fetch_add(1);
         }
+
+    protected:
+        void drawSpecific(BurgerEngine2D::Vector2, float) const override {}
 
     private:
         BurgerEngine2D::Vector2 _velocity;
@@ -119,6 +124,31 @@ TEST_GROUP(PhysicsSystem2DTest) {
 
 TEST(PhysicsSystem2DTest, ConstructSystem) {
     // Construction should succeed without starting the physics thread.
+}
+
+TEST(PhysicsSystem2DTest, DrawableAndCollisionUseOnePosition) {
+    TestCollidable object(10.0f, 20.0f, 3.0f);
+    BurgerEngine2D::I_Drawable& drawable = object;
+    BurgerEngine2D::I_Collidable& collidable = object;
+
+    drawable.setPosition(BurgerEngine2D::Vector2(40.0f, 50.0f));
+
+    CHECK_TRUE(drawable.getPosition() == BurgerEngine2D::Vector2(40.0f, 50.0f));
+    CHECK_TRUE(collidable.getPosition() == BurgerEngine2D::Vector2(40.0f, 50.0f));
+    CHECK_TRUE(collidable.getCenter() == BurgerEngine2D::Vector2(40.0f, 50.0f));
+    DOUBLES_EQUAL(3.0, collidable.getRadius(), 0.0001);
+}
+
+TEST(PhysicsSystem2DTest, DefaultMotionUpdatesSharedPositionAndShapeCenter) {
+    TestCollidable object(10.0f, 20.0f, 3.0f);
+    object.setVelocity(BurgerEngine2D::Vector2(2.0f, -1.0f));
+    object.setAcceleration(BurgerEngine2D::Vector2(0.0f, 2.0f));
+
+    object.BurgerEngine2D::I_Collidable::processMotion(0.5f);
+
+    CHECK_TRUE(object.getPosition() == BurgerEngine2D::Vector2(11.0f, 19.0f));
+    CHECK_TRUE(object.getCenter() == BurgerEngine2D::Vector2(11.0f, 19.0f));
+    CHECK_TRUE(object.getVelocity() == BurgerEngine2D::Vector2(2.0f, 0.0f));
 }
 
 TEST(PhysicsSystem2DTest, StopBeforeStart) {

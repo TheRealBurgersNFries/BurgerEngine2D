@@ -120,3 +120,18 @@ TEST(ShapeTestGroup, ModifyingInputDoesNotModifyStoredPoints) {
     DOUBLES_EQUAL(3.0, shape.getCenter().getY(), 0.0001);
     DOUBLES_EQUAL(std::sqrt(2.0), shape.getRadius(), 0.0001);
 }
+
+TEST(ShapeTestGroup, SetPositionMovesCenterWithoutChangingRadiusOrLocalPoints) {
+    BurgerEngine2D::I_Shape shape({
+        BurgerEngine2D::Vector2(-2.0f, 0.0f),
+        BurgerEngine2D::Vector2(2.0f, 0.0f),
+        BurgerEngine2D::Vector2(0.0f, 2.0f),
+        BurgerEngine2D::Vector2(0.0f, -2.0f)
+    });
+
+    shape.setPosition(BurgerEngine2D::Vector2(12.0f, 18.0f));
+
+    CHECK_TRUE(shape.getCenter() == BurgerEngine2D::Vector2(12.0f, 18.0f));
+    DOUBLES_EQUAL(2.0, shape.getRadius(), 0.0001);
+    CHECK_TRUE(shape.getPoints()[0] == BurgerEngine2D::Vector2(-2.0f, 0.0f));
+}

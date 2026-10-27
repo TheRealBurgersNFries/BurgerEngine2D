@@ -44,6 +44,10 @@ namespace BurgerEngine2D {
         }
     }
 
+    void I_Shape::setPosition(const Vector2& position) {
+        _center = position;
+    }
+
     const std::vector<Vector2>& I_Shape::getPoints() const {
         return _points;
     }

@@ -16,10 +16,12 @@ namespace BurgerEngine2D {
         protected:
             virtual void findCenter();
             virtual void findRadius();
-
-        public:
+            
+            public:
             explicit I_Shape(const std::vector<Vector2>& points);
             virtual ~I_Shape() = default;
+            
+            void setPosition(const Vector2& position);
 
             const std::vector<Vector2>& getPoints() const;
             const Vector2& getCenter() const;
