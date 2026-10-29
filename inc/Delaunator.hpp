@@ -46,8 +46,7 @@ namespace BurgerEngine2D {
         std::size_t _initialHull;
 
         std::vector<std::size_t> _hash;
-        double _centerX;
-        double _centerY;
+        Vector2 _center;
         std::size_t _hashSize;
         std::vector<std::size_t> _edgeStack;
 

@@ -4,7 +4,6 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
-#include <tuple>
 #include <utility>
 
 namespace BurgerEngine2D {
@@ -33,55 +32,57 @@ inline double sum(const std::vector<double>& x) {
     return sum + err;
 }
 
-inline double dist(const Vector2& point, double x, double y) {
-    const double dx = static_cast<double>(point.getX()) - x;
-    const double dy = static_cast<double>(point.getY()) - y;
-    return dx * dx + dy * dy;
+inline double dist(const Vector2& first, const Vector2& second) {
+    return first.distanceSquared(second);
 }
 
 inline double circumradius(const Vector2& a, const Vector2& b, const Vector2& c) {
-    const double dx = static_cast<double>(b.getX()) - a.getX();
-    const double dy = static_cast<double>(b.getY()) - a.getY();
-    const double ex = static_cast<double>(c.getX()) - a.getX();
-    const double ey = static_cast<double>(c.getY()) - a.getY();
-    const double bl = dx * dx + dy * dy;
-    const double cl = ex * ex + ey * ey;
-    const double determinant = dx * ey - dy * ex;
-    const double x = (ey * bl - dy * cl) * 0.5 / determinant;
-    const double y = (dx * cl - ex * bl) * 0.5 / determinant;
-    return bl != 0.0 && cl != 0.0 && determinant != 0.0
-        ? x * x + y * y : std::numeric_limits<double>::max();
+    const Vector2 firstEdge = b - a;
+    const Vector2 secondEdge = c - a;
+    const double firstLengthSquared = firstEdge.lengthSquared();
+    const double secondLengthSquared = secondEdge.lengthSquared();
+    const double determinant = firstEdge.cross(secondEdge);
+
+    if (firstLengthSquared == 0.0 || secondLengthSquared == 0.0 ||
+        determinant == 0.0) {
+        return std::numeric_limits<double>::max();
+    }
+
+    const Vector2 centerOffset(
+        (secondEdge.getY() * firstLengthSquared -
+         firstEdge.getY() * secondLengthSquared) * 0.5 / determinant,
+        (firstEdge.getX() * secondLengthSquared -
+         secondEdge.getX() * firstLengthSquared) * 0.5 / determinant);
+    return centerOffset.lengthSquared();
 }
 
 inline bool orient(const Vector2& p, const Vector2& q, const Vector2& r) {
-    return (q.getY() - p.getY()) * (r.getX() - q.getX()) -
-           (q.getX() - p.getX()) * (r.getY() - q.getY()) < 0.0;
+    return (q - p).cross(r - p) > 0.0;
 }
 
-inline std::pair<double, double> circumcenter(
+inline Vector2 circumcenter(
     const Vector2& a, const Vector2& b, const Vector2& c) {
-    const double dx = static_cast<double>(b.getX()) - a.getX();
-    const double dy = static_cast<double>(b.getY()) - a.getY();
-    const double ex = static_cast<double>(c.getX()) - a.getX();
-    const double ey = static_cast<double>(c.getY()) - a.getY();
-    const double bl = dx * dx + dy * dy;
-    const double cl = ex * ex + ey * ey;
-    const double determinant = dx * ey - dy * ex;
-    return {
-        a.getX() + (ey * bl - dy * cl) * 0.5 / determinant,
-        a.getY() + (dx * cl - ex * bl) * 0.5 / determinant
-    };
+    const Vector2 firstEdge = b - a;
+    const Vector2 secondEdge = c - a;
+    const double firstLengthSquared = firstEdge.lengthSquared();
+    const double secondLengthSquared = secondEdge.lengthSquared();
+    const double determinant = firstEdge.cross(secondEdge);
+    const Vector2 centerOffset(
+        (secondEdge.getY() * firstLengthSquared -
+         firstEdge.getY() * secondLengthSquared) * 0.5 / determinant,
+        (firstEdge.getX() * secondLengthSquared -
+         secondEdge.getX() * firstLengthSquared) * 0.5 / determinant);
+    return a + centerOffset;
 }
 
 struct compare {
 
     const std::vector<Vector2>& coordinates;
-    double cx;
-    double cy;
+    Vector2 center;
 
     bool operator()(std::size_t i, std::size_t j) {
-        const double d1 = dist(coordinates[i], cx, cy);
-        const double d2 = dist(coordinates[j], cx, cy);
+        const double d1 = dist(coordinates[i], center);
+        const double d2 = dist(coordinates[j], center);
         const double diff1 = d1 - d2;
         const double diff2 = coordinates[i].getX() - coordinates[j].getX();
         const double diff3 = coordinates[i].getY() - coordinates[j].getY();
@@ -98,17 +99,16 @@ struct compare {
 
 inline bool in_circle(const Vector2& a, const Vector2& b,
                       const Vector2& c, const Vector2& p) {
-    const double dx = static_cast<double>(a.getX()) - p.getX();
-    const double dy = static_cast<double>(a.getY()) - p.getY();
-    const double ex = static_cast<double>(b.getX()) - p.getX();
-    const double ey = static_cast<double>(b.getY()) - p.getY();
-    const double fx = static_cast<double>(c.getX()) - p.getX();
-    const double fy = static_cast<double>(c.getY()) - p.getY();
-    const double ap = dx * dx + dy * dy;
-    const double bp = ex * ex + ey * ey;
-    const double cp = fx * fx + fy * fy;
-    return (dx * (ey * cp - bp * fy) - dy * (ex * cp - bp * fx) +
-            ap * (ex * fy - ey * fx)) < 0.0;
+    const Vector2 firstOffset = a - p;
+    const Vector2 secondOffset = b - p;
+    const Vector2 thirdOffset = c - p;
+    const double firstLengthSquared = firstOffset.lengthSquared();
+    const double secondLengthSquared = secondOffset.lengthSquared();
+    const double thirdLengthSquared = thirdOffset.lengthSquared();
+
+    return firstLengthSquared * secondOffset.cross(thirdOffset) -
+           secondLengthSquared * firstOffset.cross(thirdOffset) +
+           thirdLengthSquared * firstOffset.cross(secondOffset) < 0.0;
 }
 
 inline bool check_pts_equal(const Vector2& a, const Vector2& b) {
@@ -117,7 +117,9 @@ inline bool check_pts_equal(const Vector2& a, const Vector2& b) {
 }
 
 // monotonically increases with real angle, but doesn't need expensive trigonometry
-inline double pseudo_angle(const double dx, const double dy) {
+inline double pseudo_angle(const Vector2& offset) {
+    const double dx = offset.getX();
+    const double dy = offset.getY();
     const double p = dx / (std::abs(dx) + std::abs(dy));
     return (dy > 0.0 ? 3.0 - p : 1.0 + p) / 4.0; // [0..1)
 }
@@ -134,8 +136,7 @@ Delaunator::Delaunator(const std::vector<Vector2>& in_coordinates)
       _triangleHull(),
       _initialHull(),
       _hash(),
-      _centerX(),
-      _centerY(),
+      _center(),
       _hashSize(),
       _edgeStack() {
     std::size_t n = _coordinates.size();
@@ -194,8 +195,7 @@ Delaunator::Delaunator(const std::vector<Vector2>& in_coordinates)
 
         ids.push_back(i);
     }
-    const double cx = (min_x + max_x) / 2;
-    const double cy = (min_y + max_y) / 2;
+    const Vector2 centroid((min_x + max_x) / 2, (min_y + max_y) / 2);
     double min_dist = std::numeric_limits<double>::max();
 
     std::size_t i0 = INVALID_INDEX;
@@ -204,7 +204,7 @@ Delaunator::Delaunator(const std::vector<Vector2>& in_coordinates)
 
     // pick a seed point close to the centroid
     for (std::size_t i = 0; i < n; i++) {
-        const double d = dist(_coordinates[i], cx, cy);
+        const double d = dist(_coordinates[i], centroid);
         if (d < min_dist) {
             i0 = i;
             min_dist = d;
@@ -217,7 +217,7 @@ Delaunator::Delaunator(const std::vector<Vector2>& in_coordinates)
     // find the point closest to the seed
     for (std::size_t i = 0; i < n; i++) {
         if (i == i0 || check_pts_equal(_coordinates[i], _coordinates[i0])) continue;
-        const double d = dist(_coordinates[i], _coordinates[i0].getX(), _coordinates[i0].getY());
+        const double d = dist(_coordinates[i], _coordinates[i0]);
         if (d < min_dist && d > 0.0) {
             i1 = i;
             min_dist = d;
@@ -248,11 +248,10 @@ Delaunator::Delaunator(const std::vector<Vector2>& in_coordinates)
     if (orient(_coordinates[i0], _coordinates[i1], _coordinates[i2])) {
         std::swap(i1, i2);
     }
-    std::tie(_centerX, _centerY) = circumcenter(
-        _coordinates[i0], _coordinates[i1], _coordinates[i2]);
+    _center = circumcenter(_coordinates[i0], _coordinates[i1], _coordinates[i2]);
 
     // sort the points by distance from the seed triangle circumcenter
-    std::sort(ids.begin(), ids.end(), compare{ _coordinates, _centerX, _centerY });
+    std::sort(ids.begin(), ids.end(), compare{ _coordinates, _center });
 
     // initialize a hash table for storing edges of the advancing convex hull
     _hashSize = static_cast<std::size_t>(std::llround(std::ceil(std::sqrt(n))));
@@ -485,10 +484,9 @@ std::size_t Delaunator::legalize(std::size_t a) {
 }
 
 inline std::size_t Delaunator::hashKey(const Vector2& point) const {
-    const double dx = static_cast<double>(point.getX()) - _centerX;
-    const double dy = static_cast<double>(point.getY()) - _centerY;
+    const Vector2 offset = point - _center;
     return fast_mod(
-        static_cast<std::size_t>(std::llround(std::floor(pseudo_angle(dx, dy) * static_cast<double>(_hashSize)))),
+        static_cast<std::size_t>(std::llround(std::floor(pseudo_angle(offset) * static_cast<double>(_hashSize)))),
         _hashSize);
 }
 
