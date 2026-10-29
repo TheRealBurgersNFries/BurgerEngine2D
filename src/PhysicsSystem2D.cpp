@@ -136,10 +136,10 @@ namespace BurgerEngine2D {
 
     bool PhysicsSystem2D::isCircleColliding (const BurgerEngine2D::I_Collidable* a, 
         const BurgerEngine2D::I_Collidable* b) {
-            const float dx = a->getCenter().getX() - b->getCenter().getX();
-            const float dy = a->getCenter().getY() - b->getCenter().getY();
+            const double dx = a->getCenter().getX() - b->getCenter().getX();
+            const double dy = a->getCenter().getY() - b->getCenter().getY();
 
-            const float radiusSum = a->getRadius() + b->getRadius();
+            const double radiusSum = a->getRadius() + b->getRadius();
 
             return (dx * dx + dy * dy) < (radiusSum * radiusSum);
         }

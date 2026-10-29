@@ -5,23 +5,23 @@ namespace BurgerEngine2D {
 
     class Vector2 final {
         private:
-            float _x;
-            float _y;
+            double _x;
+            double _y;
       
         public:
             constexpr Vector2()
-                : _x(0.0f), _y(0.0f) {
+                : _x(0.0), _y(0.0) {
             }
         
-            constexpr Vector2(float x, float y) 
+            constexpr Vector2(double x, double y)
                 : _x(x), _y(y) {
             }
 
-            constexpr float getX() const {
+            constexpr double getX() const {
                 return _x;
             }
 
-            constexpr float getY() const {
+            constexpr double getY() const {
                 return _y;
             }
             
@@ -33,11 +33,11 @@ namespace BurgerEngine2D {
                 return {_x - other._x, _y - other._y};
             }
 
-            constexpr Vector2 operator*(float scalar) const {
+            constexpr Vector2 operator*(double scalar) const {
                 return {_x * scalar, _y * scalar};
             }
 
-            constexpr Vector2 operator/(float scalar) const {
+            constexpr Vector2 operator/(double scalar) const {
                 return {_x / scalar, _y / scalar};
             }
 

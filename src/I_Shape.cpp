@@ -6,7 +6,7 @@
 namespace BurgerEngine2D {
 
     I_Shape::I_Shape(const std::vector<Vector2>& points)
-        : _points(points), _center(), _radius(0.0f) {
+        : _points(points), _center(), _radius(0.0) {
         findCenter();
         findRadius();
     }
@@ -17,26 +17,26 @@ namespace BurgerEngine2D {
             return;
         }
 
-        float x = 0.0f;
-        float y = 0.0f;
+        double x = 0.0;
+        double y = 0.0;
 
         for (const Vector2& point : _points) {
             x += point.getX();
             y += point.getY();
         }
 
-        const float count = static_cast<float>(_points.size());
+        const double count = static_cast<double>(_points.size());
 
         _center = Vector2(x / count, y / count);
     }
 
     void I_Shape::findRadius() {
-        _radius = 0.0f;
+        _radius = 0.0;
 
         for (const Vector2& point : _points) {
-            const float dx = point.getX() - _center.getX();
-            const float dy = point.getY() - _center.getY();
-            const float distance = std::sqrt(dx * dx + dy * dy);
+            const double dx = point.getX() - _center.getX();
+            const double dy = point.getY() - _center.getY();
+            const double distance = std::sqrt(dx * dx + dy * dy);
 
             if (distance > _radius) {
                 _radius = distance;
@@ -56,7 +56,7 @@ namespace BurgerEngine2D {
         return _center;
     }
 
-    float I_Shape::getRadius() const {
+    double I_Shape::getRadius() const {
         return _radius;
     }
 

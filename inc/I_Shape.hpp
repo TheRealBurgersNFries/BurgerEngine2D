@@ -11,7 +11,7 @@ namespace BurgerEngine2D {
         private:
             std::vector<Vector2> _points;
             Vector2 _center;
-            float _radius;
+            double _radius;
 
         protected:
             virtual void findCenter();
@@ -25,7 +25,7 @@ namespace BurgerEngine2D {
 
             const std::vector<Vector2>& getPoints() const;
             const Vector2& getCenter() const;
-            float getRadius() const;
+            double getRadius() const;
     };
 
 }

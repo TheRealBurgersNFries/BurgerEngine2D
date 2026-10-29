@@ -15,7 +15,7 @@ namespace {
     class TestCollidable : public BurgerEngine2D::I_Drawable,
                           public BurgerEngine2D::I_Collidable {
     public:
-        TestCollidable(float x, float y, float radius)
+        TestCollidable(double x, double y, double radius)
             : BurgerEngine2D::I_Collidable({
                 BurgerEngine2D::Vector2(x - radius, y),
                 BurgerEngine2D::Vector2(x + radius, y),
@@ -139,6 +139,18 @@ TEST(PhysicsSystem2DTest, DrawableAndCollisionUseOnePosition) {
     DOUBLES_EQUAL(3.0, collidable.getRadius(), 0.0001);
 }
 
+TEST(PhysicsSystem2DTest, PositionPreservesDoublePrecision) {
+    TestCollidable object(0.0, 0.0, 1.0);
+    const BurgerEngine2D::Vector2 position(1.000000000001, -2.000000000001);
+
+    object.setPosition(position);
+
+    DOUBLES_EQUAL(position.getX(), object.getPosition().getX(), 0.0000000000001);
+    DOUBLES_EQUAL(position.getY(), object.getPosition().getY(), 0.0000000000001);
+    DOUBLES_EQUAL(position.getX(), object.getCenter().getX(), 0.0000000000001);
+    DOUBLES_EQUAL(position.getY(), object.getCenter().getY(), 0.0000000000001);
+}
+
 TEST(PhysicsSystem2DTest, DefaultMotionUpdatesSharedPositionAndShapeCenter) {
     TestCollidable object(10.0f, 20.0f, 3.0f);
     object.setVelocity(BurgerEngine2D::Vector2(2.0f, -1.0f));
@@ -146,8 +158,9 @@ TEST(PhysicsSystem2DTest, DefaultMotionUpdatesSharedPositionAndShapeCenter) {
 
     object.BurgerEngine2D::I_Collidable::processMotion(0.5f);
 
-    CHECK_TRUE(object.getPosition() == BurgerEngine2D::Vector2(11.0f, 19.0f));
-    CHECK_TRUE(object.getCenter() == BurgerEngine2D::Vector2(11.0f, 19.0f));
+    // processMotion updates velocity before using it to move the position.
+    CHECK_TRUE(object.getPosition() == BurgerEngine2D::Vector2(11.0, 20.0));
+    CHECK_TRUE(object.getCenter() == BurgerEngine2D::Vector2(11.0, 20.0));
     CHECK_TRUE(object.getVelocity() == BurgerEngine2D::Vector2(2.0f, 0.0f));
 }
 
