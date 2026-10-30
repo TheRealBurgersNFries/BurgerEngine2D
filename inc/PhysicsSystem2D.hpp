@@ -42,7 +42,7 @@
         std::vector<I_Collidable*> _collidables;
         std::mutex _collidablesMutex;
 
-        std::thread _physicsThread;
+        std::jthread _physicsThread;
         std::atomic<bool> _running;
 
         BurgerEngine2D::Dispatcher* _dispatcher;
