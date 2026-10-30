@@ -9,13 +9,19 @@
 #include <cstddef>
 #include <map>
 #include <memory>
-#include <queue>
+#include <mutex>
 #include <vector>
 
 namespace BurgerEngine2D {
 
     class Dispatcher {
         public:
+            Dispatcher() = default;
+            ~Dispatcher() = default;
+
+            Dispatcher(const Dispatcher&) = delete;
+            Dispatcher& operator=(const Dispatcher&) = delete;
+
             static void queueEvent(std::shared_ptr<const I_Event> event);
             static void dispatch();
 
@@ -27,13 +33,11 @@ namespace BurgerEngine2D {
             static void clearAllSubscribers();
 
         private:
-            Dispatcher() = default;
-            ~Dispatcher() = default;
-
             static void dispatchEvent(std::shared_ptr<const I_Event> event);
 
             static std::map<EventType, std::vector<I_Subscriber*>> _subscribers;
-            static std::queue<std::shared_ptr<const I_Event>> _eventQueue;
+            static std::vector<std::shared_ptr<const I_Event>> _eventQueue;
+            static std::mutex _eventQueueMutex;
     };
 
 }
