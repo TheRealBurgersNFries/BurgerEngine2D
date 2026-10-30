@@ -8,6 +8,8 @@
 
 #include <string>
 #include <atomic>
+#include <thread>
+#include <vector>
 
 namespace BurgerEngine2D {
     class Window {
@@ -24,6 +26,7 @@ namespace BurgerEngine2D {
             std::atomic<bool>* _inputsAvailable;
 
             std::vector<int>* _inputs;
+            std::jthread _renderThread;
 
             void renderTask();
 
@@ -34,6 +37,8 @@ namespace BurgerEngine2D {
                 std::string title, int targetFrameRate,
                 BurgerEngine2D::DrawStack2D* stack, std::vector<int>* inputs,
                 std::atomic<bool>* inputsAvailable);
+
+            ~Window();
 
             Window(const Window&) = delete;
             Window& operator = (const Window&) = delete;
