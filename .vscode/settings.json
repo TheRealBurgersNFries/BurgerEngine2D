@@ -1,5 +1,5 @@
 {
-  "cpputestTestAdapter.testExecutable": "${workspaceFolder}/build/bin/test/testrunner;",
+  "cpputestTestAdapter.testExecutable": "${workspaceFolder}/build/bin/test/testrunner",
   "cpputestTestAdapter.testExecutablePath": "${workspaceFolder}/test",
   "C_Cpp.default.includePath": [
     "${workspaceFolder}/inc/",
