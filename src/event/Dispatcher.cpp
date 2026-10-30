@@ -9,26 +9,25 @@ namespace BurgerEngine2D {
     std::map<EventType, std::vector<I_Subscriber*>>
         Dispatcher::_subscribers;
 
-    std::queue<std::shared_ptr<const I_Event>>
-        Dispatcher::_eventQueue;
+    std::vector<std::shared_ptr<const I_Event>> Dispatcher::_eventQueue;
+
+    std::mutex Dispatcher::_eventQueueMutex;
 
     void Dispatcher::queueEvent(std::shared_ptr<const I_Event> event) {
         if (event) {
-            _eventQueue.push(std::move(event));
+            std::lock_guard<std::mutex> lock(_eventQueueMutex);
+            _eventQueue.push_back(std::move(event));
         }
     }
 
     void Dispatcher::dispatch() {
-        const std::size_t eventsToDispatch = _eventQueue.size();
+        std::vector<std::shared_ptr<const I_Event>> eventsToDispatch;
+        {
+            std::lock_guard<std::mutex> lock(_eventQueueMutex);
+            std::swap(eventsToDispatch, _eventQueue);
+        }
 
-        for (std::size_t i = 0; i < eventsToDispatch; ++i) {
-            if (_eventQueue.empty()) {
-                break;
-            }
-
-            auto event = std::move(_eventQueue.front());
-            _eventQueue.pop();
-
+        for (auto& event : eventsToDispatch) {
             dispatchEvent(std::move(event));
         }
     }
@@ -90,7 +89,7 @@ namespace BurgerEngine2D {
             return;
         }
 
-        const EventType type = event->getType();
+        const EventType type = event.get()->getType();
         auto it = _subscribers.find(type);
 
         if (it == _subscribers.end()) {
