@@ -2,7 +2,7 @@
 #include "PhysicsSystem2D.hpp"
 
 #include <algorithm>
-#include <execution>
+// #include <execution>
 #include <chrono>
 #include <memory>
 
@@ -25,7 +25,7 @@ namespace BurgerEngine2D {
         }
 
         _running.store(true);
-        _physicsThread = std::thread(&PhysicsSystem2D::run, this);
+        _physicsThread = std::jthread(&PhysicsSystem2D::run, this);
     }
 
     void PhysicsSystem2D::stop() {

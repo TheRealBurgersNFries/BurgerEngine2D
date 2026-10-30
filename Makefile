@@ -28,6 +28,7 @@ LIB_DIR         := build/lib
 # Output targets
 TARGET              := $(LIB_DIR)/libBurgerEngine2D.so
 TEST_TARGET         := $(BIN_DIR)/test/testrunner
+TEST_LOG            := build/test.log
 DEBUG_TARGET        := $(LIB_DIR)/debug/libBurgerEngine2D.so
 DEBUG_TEST_TARGET   := $(BIN_DIR)/debug/testrunner
 
@@ -74,7 +75,7 @@ RAYLIB_LIB      := $(RAYLIB_SRC)/libraylib.a
 
 RAYLIB_CFLAGS   := -I$(RAYLIB_SRC)
 RAYLIB_LIBS     := -lGL -lm -lpthread -ldl -lrt -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon
-TBB_LIBS        := -ltbb
+TBB_LIBS        :=# -ltbb
 LD_LIBS         := -L$(CPPUTEST_HOME)/lib -lCppUTest -lCppUTestExt
 
 # Compiler flags
@@ -94,7 +95,7 @@ DEPS            := $(OBJS:.o=.d) $(TEST_OBJS:.o=.d) \
                    $(DEBUG_OBJS:.o=.d) $(DEBUG_TEST_OBJS:.o=.d)
 
 # Default target
-.PHONY: all test debug clean run-debug raylib
+.PHONY: all test test-log debug clean run-debug raylib
 
 all: $(TARGET) $(TEST_TARGET)
 
@@ -150,6 +151,11 @@ $(DEBUG_TEST_OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp
 # Run tests
 test: $(TEST_TARGET)
 	./$(TEST_TARGET)
+
+# Run tests while showing their output and saving it for later inspection.
+test-log: $(TEST_TARGET)
+	@mkdir -p $(dir $(TEST_LOG))
+	bash -o pipefail -c './$(TEST_TARGET) 2>&1 | tee $(TEST_LOG)'
 
 # Build debug targets
 debug: $(DEBUG_TARGET) $(DEBUG_TEST_TARGET)

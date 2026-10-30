@@ -6,7 +6,7 @@
 #include "RayLibWrapper.hpp"
 
 #include <algorithm>
-#include <execution>
+//#include <execution>
 #include <unordered_set>
 
 namespace BurgerEngine2D {
@@ -37,11 +37,11 @@ namespace BurgerEngine2D {
     }
 
     void DrawStack2D::sortSubs() {
-        std::sort(std::execution::par, _subList.begin(), _subList.end(), lesserDepthComparer{});
+        std::sort(/*std::execution::par,*/ _subList.begin(), _subList.end(), lesserDepthComparer{});
     }
 
     void DrawStack2D::sortDraws() {
-        std::sort(std::execution::par, _drawList.begin(), _drawList.end(), lesserDepthComparer{});
+        std::sort(/*std::execution::par,*/ _drawList.begin(), _drawList.end(), lesserDepthComparer{});
     }
 
     void DrawStack2D::removeSubs() {
