@@ -1,7 +1,6 @@
 #include "EventType.hpp"
 
 #include "CppUTest/TestHarness.h"
-#include "CppUTest/MemoryLeakDetectorNewMacros.h"
 
 namespace {
     struct KeyboardEvent {};
@@ -10,12 +9,6 @@ namespace {
 }
 
 TEST_GROUP(EventTypeTest) {
-        void setup() {
-            MemoryLeakWarningPlugin::saveAndDisableNewDeleteOverloads();
-        }
-        void teardown() {
-            MemoryLeakWarningPlugin::restoreNewDeleteOverloads();
-        }
 };
 
 TEST(EventTypeTest, ReturnsSameIdentifierForRepeatedRequests) {

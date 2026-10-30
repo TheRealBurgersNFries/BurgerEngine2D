@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <optional>
 
+#include "Dispatcher.hpp"
 #include "KeyboardController.hpp"
 #include "KeyboardKey.hpp"
 #include "KeyboardWrapper.hpp"
@@ -19,15 +20,20 @@ TEST_GROUP(KeyboardControllerTestGroup) {
     std::optional<BurgerEngine2D::KeyboardController> controller;
 
     void setup() {
-        MemoryLeakWarningPlugin::saveAndDisableNewDeleteOverloads();
         BurgerEngine2D::mockResetKeyboard();
         controller.emplace(keyboard);
     }
 
     void teardown() {
+        // Key presses queue events even when this fixture has no event
+        // subscribers. Drain them here so no event is carried into another
+        // test fixture through the dispatcher's static queue.
+        BurgerEngine2D::Dispatcher::clearAllSubscribers();
+        BurgerEngine2D::Dispatcher::dispatch();
+
         controller.reset();
         BurgerEngine2D::mockResetKeyboard();
-        MemoryLeakWarningPlugin::restoreNewDeleteOverloads();
+        
     }
 };
 

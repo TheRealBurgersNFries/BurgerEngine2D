@@ -7,7 +7,6 @@
 #include "Camera2D.hpp"
 
 #include "CppUTest/TestHarness.h"
-#include "CppUTest/MemoryLeakDetectorNewMacros.h"
 
 #include "CppUTestExt/MockSupport.h"
 
@@ -59,7 +58,6 @@ TEST_GROUP(DrawStackTestGroup) {
 
 
     void setup() {
-        MemoryLeakWarningPlugin::saveAndDisableNewDeleteOverloads();
         testStack.emplace();
         testStack->setCamera(&camera);
     }
@@ -72,7 +70,6 @@ TEST_GROUP(DrawStackTestGroup) {
         drawObject2.reset();
         drawObject3.reset();
         drawObject4.reset();
-        MemoryLeakWarningPlugin::restoreNewDeleteOverloads();
     }
 };
 

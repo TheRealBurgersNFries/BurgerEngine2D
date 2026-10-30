@@ -15,63 +15,59 @@
 
 namespace {
 
-const BurgerEngine2D::EventType TEST_EVENT_A =
-    static_cast<BurgerEngine2D::EventType>(1);
+    const BurgerEngine2D::EventType TEST_EVENT_A =
+        static_cast<BurgerEngine2D::EventType>(1);
 
-const BurgerEngine2D::EventType TEST_EVENT_B =
-    static_cast<BurgerEngine2D::EventType>(2);
+    const BurgerEngine2D::EventType TEST_EVENT_B =
+        static_cast<BurgerEngine2D::EventType>(2);
 
-class TestEvent : public BurgerEngine2D::I_Event {
-private:
-    BurgerEngine2D::EventType _type;
+    class TestEvent : public BurgerEngine2D::I_Event {
+        private:
+            BurgerEngine2D::EventType _type;
 
-public:
-    explicit TestEvent(BurgerEngine2D::EventType type)
-        : _type(type) {}
+        public:
+            explicit TestEvent(BurgerEngine2D::EventType type)
+                : _type(type) {}
 
-    BurgerEngine2D::EventType getType() const noexcept override {
-        return _type;
+            BurgerEngine2D::EventType getType() const noexcept override {
+                return _type;
+            }
+        };
+
+    class TestSubscriber : public BurgerEngine2D::I_Subscriber {
+        public:
+            std::vector<BurgerEngine2D::EventType> receivedEvents;
+            std::function<void()> callback;
+
+            void onEvent(
+                std::shared_ptr<const BurgerEngine2D::I_Event> event
+            ) override {
+                receivedEvents.push_back(event->getType());
+
+                if (callback) {
+                    callback();
+                }
+            }
+
+            std::size_t getEventCount() const {
+                return receivedEvents.size();
+            }
+        };
+
+    std::shared_ptr<const BurgerEngine2D::I_Event> createEvent(
+        BurgerEngine2D::EventType type) {
+        return std::make_shared<TestEvent>(type);
     }
-};
-
-class TestSubscriber : public BurgerEngine2D::I_Subscriber {
-public:
-    std::vector<BurgerEngine2D::EventType> receivedEvents;
-    std::function<void()> callback;
-
-    void onEvent(
-        std::shared_ptr<const BurgerEngine2D::I_Event> event
-    ) override {
-        receivedEvents.push_back(event->getType());
-
-        if (callback) {
-            callback();
-        }
-    }
-
-    std::size_t getEventCount() const {
-        return receivedEvents.size();
-    }
-};
-
-std::shared_ptr<const BurgerEngine2D::I_Event> createEvent(
-    BurgerEngine2D::EventType type
-) {
-    return std::make_shared<TestEvent>(type);
-}
 
 }
 
 TEST_GROUP(DispatcherTestGroup) {
-    void setup() override {
+    void setup() {
         BurgerEngine2D::Dispatcher::clearAllSubscribers();
-
-        // Drain events left in the static queue by earlier tests.
         BurgerEngine2D::Dispatcher::dispatch();
     }
 
-    void teardown() override {
-        // Remove subscribers before draining queued events.
+    void teardown() {
         BurgerEngine2D::Dispatcher::clearAllSubscribers();
         BurgerEngine2D::Dispatcher::dispatch();
     }
