@@ -3,30 +3,38 @@
 
 #include "DrawStack2D.hpp"
 #include "Dispatcher.hpp"
+#include "I_Subscriber.hpp"
 
 #include "RayLibWrapper.hpp"
 
 #include <string>
 #include <atomic>
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 #include <vector>
 
 namespace BurgerEngine2D {
-    class Window {
+    class Window  : public I_Subscriber{
         private:
-            BurgerEngine2D::DrawStack2D* _stack;
-            
-            BurgerEngine2D::Dispatcher* _dispatcher;
-            
+            std::atomic<bool>* _running;
+
             int _windowWidth;
             int _windowHeight;
-            int _targetFramerate;
             std::string _title;
-            std::atomic<bool>* _running;
+            int _targetFramerate;
+            BurgerEngine2D::DrawStack2D* _stack;
+            
+            std::vector<int>* _inputs;
             std::atomic<bool>* _inputsAvailable;
 
-            std::vector<int>* _inputs;
+            bool _physicsComplete;
+            std::mutex _physicsMutex;
+            std::condition_variable _physicsCondition;
+            
             std::jthread _renderThread;
+
+            void onPhysicsComplete();
 
             void renderTask();
 
@@ -42,6 +50,8 @@ namespace BurgerEngine2D {
 
             Window(const Window&) = delete;
             Window& operator = (const Window&) = delete;
+
+            void onEvent(std::shared_ptr<const I_Event> event) override;
 
 
         

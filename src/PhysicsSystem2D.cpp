@@ -5,6 +5,10 @@
 // #include <execution>
 #include <chrono>
 #include <memory>
+#include <chrono>
+
+#include "UpdateCompleteEvent.hpp"
+
 
 #include "Dispatcher.hpp"
 #include "CollisionEvent.hpp"
@@ -71,17 +75,17 @@ namespace BurgerEngine2D {
             std::chrono::duration<double>(timestep)
         );
 
-        auto nextTick = Clock::now();
 
         while (_running.load()) {
-            nextTick += interval;
-
+            auto startTime = std::chrono::steady_clock::now();
             physicsStep(static_cast<float>(timestep));
-
-            std::this_thread::sleep_until(nextTick);
-
-            if (Clock::now() > nextTick + interval) {
-                nextTick = Clock::now();
+            auto endTime = std::chrono::steady_clock::now();
+            auto elapsed = (endTime - startTime);
+            Dispatcher::queueEvent(std::make_shared<UpdateCompleteEvent>(
+                    std::chrono::duration_cast<std::chrono::microseconds>(elapsed)));
+            
+            if (elapsed < interval) {
+                std::this_thread::sleep_for(interval - elapsed);
             }
         }
     }

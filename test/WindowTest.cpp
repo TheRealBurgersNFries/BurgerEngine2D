@@ -5,10 +5,13 @@
 
 #include "RayLibWrapper.hpp"
 #include "RayLibMock.hpp"
+#include "UpdateCompleteEvent.hpp"
 
 #include <optional>
 
 #include <atomic>
+#include <chrono>
+#include <memory>
 #include <string>
 #include <thread>
 
@@ -28,13 +31,33 @@ TEST_GROUP(WindowTestGroup) {
     std::optional<std::atomic<bool>> inputsAvail = std::nullopt;
 
     std::optional<std::vector<int>> inputs = std::nullopt;
+    std::jthread mockPhysicsThread;
 
     int width = 800;
     int height = 600; 
     std::string title = "test";
     
+    void startMockPhysics() {
+        std::atomic<bool>* runPtr = std::addressof(running.value());
+
+        mockPhysicsThread = std::jthread([runPtr] {
+            const auto physicsInterval = std::chrono::microseconds(16667);
+
+            while (runPtr->load()) {
+                BurgerEngine2D::Dispatcher::queueEvent(
+                    std::make_shared<BurgerEngine2D::UpdateCompleteEvent>(
+                        physicsInterval
+                    )
+                );
+                BurgerEngine2D::Dispatcher::dispatch();
+                std::this_thread::sleep_for(physicsInterval);
+            }
+        });
+    }
     
     void setup() {
+        BurgerEngine2D::Dispatcher::clearAllSubscribers();
+        BurgerEngine2D::Dispatcher::dispatch();
         stack.emplace();
         running = true;
         inputsAvail = false;
@@ -43,7 +66,14 @@ TEST_GROUP(WindowTestGroup) {
 
     void teardown() {
         running = false;
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+        if (mockPhysicsThread.joinable()) {
+            mockPhysicsThread.join();
+        }
+
+        testWindow.reset();
+        BurgerEngine2D::Dispatcher::clearAllSubscribers();
+        BurgerEngine2D::Dispatcher::dispatch();
         BurgerEngine2D::resetMockCalls();
     }
 
@@ -74,8 +104,12 @@ TEST(WindowTestGroup, defaultRenderTiming) {
     mock().ignoreOtherCalls();
     
     init();
+    startMockPhysics();
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     running = false;
+    mockPhysicsThread.join();
+    testWindow.reset();
+
     int upperBound = 121;
     int lowerBound = 119;
 
@@ -93,8 +127,12 @@ TEST(WindowTestGroup, longRenderTiming) {
     mock().ignoreOtherCalls();
     
     init();
+    startMockPhysics();
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     running = false;
+    mockPhysicsThread.join();
+    testWindow.reset();
+
     int upperBound = 121;
     int lowerBound = 119;
 

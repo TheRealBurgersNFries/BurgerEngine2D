@@ -1,6 +1,3 @@
-
-#include "CppUTest/TestHarness.h"
-
 #include <atomic>
 #include <chrono>
 #include <thread>
@@ -11,6 +8,9 @@
 #include "I_Drawable.hpp"
 #include "I_Shape.hpp"
 
+#include "Dispatcher.hpp"
+
+#include "CppUTest/TestHarness.h"
 namespace {
     class TestCollidable : public BurgerEngine2D::I_Drawable,
                           public BurgerEngine2D::I_Collidable {
@@ -119,6 +119,8 @@ TEST_GROUP(PhysicsSystem2DTest) {
     void teardown() {
         delete physicsSystem;
         physicsSystem = nullptr;
+        BurgerEngine2D::Dispatcher::clearAllSubscribers();
+        BurgerEngine2D::Dispatcher::dispatch();
     }
 };
 
